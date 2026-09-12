@@ -22,14 +22,14 @@
             background-color: #f1f5f9;
         }
 
-        /* Canvas interaction rules for smooth touch stylus support */
+        /* Canvas interaction rules for smooth touch stylus support on iPads */
         canvas {
             touch-action: none;
         }
 
         /* Animated pulse for active touch buttons */
         .touch-bounce:active {
-            transform: scale(0.94);
+            transform: scale(0.95);
         }
 
         /* Custom scrollbar styling */
@@ -49,7 +49,7 @@
             background: #94a3b8;
         }
 
-        /* Rotation and reflection animation classes for Activity 1 */
+        /* Dynamic keyframes for geometric transformations in Activity 1 */
         @keyframes spinSlow {
             from { transform: rotate(0deg); }
             to { transform: rotate(360deg); }
@@ -77,20 +77,20 @@
 </head>
 <body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen overflow-x-hidden">
 
-    <!-- 頂部導覽列 Header (極簡介面，無文字圖示按鈕，順序嚴格固定) -->
+    <!-- 頂部導覽列 Header (極簡介面，純圖示無文字標籤，順序嚴格固定) -->
     <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-30 px-4 py-3 flex justify-between items-center border-b-4 border-indigo-900">
         <div class="flex items-center space-x-3">
-            <span class="bg-amber-400 text-indigo-950 font-black text-xl md:text-2xl px-3 py-1.5 rounded-2xl shadow-md border-2 border-amber-300">
-                幾何美學
+            <span class="bg-amber-400 text-indigo-950 font-black text-xl md:text-2xl px-3.5 py-1.5 rounded-2xl shadow-md border-2 border-amber-300 flex items-center gap-2">
+                <i class="fa-solid fa-shapes"></i> 規律的視覺美感
             </span>
-            <!-- 版本控制編號 (版本更新疊加) -->
-            <span class="text-xs md:text-sm bg-indigo-900/80 text-amber-300 px-2.5 py-1 rounded-xl font-mono border border-indigo-500/50 shadow-inner">
-                v1.0.1 - Build 2026.08
+            <!-- 版本控制編號：格式變更為簡潔版號 v1.1.0，隨後續修改疊加序號 -->
+            <span id="versionTag" class="text-xs md:text-sm bg-indigo-900/90 text-amber-300 px-3 py-1 rounded-xl font-mono font-bold border border-indigo-400/50 shadow-inner">
+                v1.1.0
             </span>
         </div>
 
-        <!-- 四大功能圖示鍵（嚴格依序：① QR Code -> ② 全螢幕 -> ③ 教師專區 -> ④ 課程指引） -->
-        <div class="flex items-center space-x-2 md:space-x-4">
+        <!-- 頂部功能圖示鍵（移除教師資料庫後，純圖示依序為：① QR Code -> ② 全螢幕 -> ③ 課程指引） -->
+        <div class="flex items-center space-x-2 md:space-x-3">
             <!-- ① QR Code 掃碼連結鍵 [QR Icon] -->
             <button onclick="toggleModal('qrModal')" aria-label="QR Code" title="掃描 QR Code 網址" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
                 <i class="fa-solid fa-qrcode"></i>
@@ -101,12 +101,7 @@
                 <i id="fullscreenIcon" class="fa-solid fa-expand"></i>
             </button>
 
-            <!-- ③ 教師專區 [Teacher Icon] -->
-            <button onclick="openTeacherZone()" aria-label="Teacher Zone" title="教師管理專區" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
-                <i class="fa-solid fa-chalkboard-user"></i>
-            </button>
-
-            <!-- ④ 課程指引 [Book Icon] -->
+            <!-- ③ 課程指引 [Book Icon] -->
             <button onclick="toggleModal('guideModal')" aria-label="Course Guide" title="觀看課程指引" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
                 <i class="fa-solid fa-book-open"></i>
             </button>
@@ -116,19 +111,24 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-3 md:p-6 flex flex-col space-y-6">
 
-        <!-- 活動頁籤導覽 (專為 10-12 歲設計超大觸控按鈕) -->
-        <div class="grid grid-cols-3 gap-2 md:gap-4 bg-white p-2.5 rounded-3xl shadow-md border-2 border-slate-200">
-            <button id="tabBtn1" onclick="switchActivity(1)" class="py-3.5 md:py-4 px-2 rounded-2xl text-lg md:text-2xl font-black transition flex flex-col md:flex-row items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95">
-                <i class="fa-solid fa-compass text-2xl md:text-3xl"></i>
+        <!-- 活動頁籤導覽 (4 大分頁，包含直接呈現學生作品的「成果展示牆」) -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 bg-white p-2 rounded-3xl shadow-md border-2 border-slate-200">
+            <button id="tabBtn1" onclick="switchActivity(1)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95">
+                <i class="fa-solid fa-compass text-xl md:text-2xl"></i>
                 <span>活動一：課程導入</span>
             </button>
-            <button id="tabBtn2" onclick="switchActivity(2)" class="py-3.5 md:py-4 px-2 rounded-2xl text-lg md:text-2xl font-black transition flex flex-col md:flex-row items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-pen-ruler text-2xl md:text-3xl"></i>
+            <button id="tabBtn2" onclick="switchActivity(2)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
+                <i class="fa-solid fa-pen-ruler text-xl md:text-2xl"></i>
                 <span>活動二：對稱解碼</span>
             </button>
-            <button id="tabBtn3" onclick="switchActivity(3)" class="py-3.5 md:py-4 px-2 rounded-2xl text-lg md:text-2xl font-black transition flex flex-col md:flex-row items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-wand-magic-sparkles text-2xl md:text-3xl"></i>
-                <span>活動三：萬花筒與歸納</span>
+            <button id="tabBtn3" onclick="switchActivity(3)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
+                <i class="fa-solid fa-wand-magic-sparkles text-xl md:text-2xl"></i>
+                <span>活動三：萬花筒與反思</span>
+            </button>
+            <button id="tabBtn4" onclick="switchActivity(4)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
+                <i class="fa-solid fa-gem text-xl md:text-2xl text-amber-500"></i>
+                <span>成果展示牆</span>
+                <span id="showcaseCountBadge" class="bg-amber-400 text-indigo-950 text-xs px-2 py-0.5 rounded-full font-black ml-1">0</span>
             </button>
         </div>
 
@@ -137,11 +137,11 @@
             <div class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
                 <div class="flex items-center gap-3 border-b-4 border-amber-400 pb-3 mb-6">
                     <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">1</div>
-                    <h2 class="text-2xl md:text-3xl font-black text-indigo-950">伊斯蘭幾何與數學規律</h2>
+                    <h2 class="text-2xl md:text-3xl font-black text-indigo-950">幾何紋樣與數學規則探究</h2>
                 </div>
                 
                 <p class="text-xl md:text-2xl text-slate-700 leading-relaxed mb-6 font-bold">
-                    請點選下方卡片，觀察幾何圖案背後的「鏡射」、「旋轉」與「平移」規則，感受數學變化！
+                    請輕觸下方卡片，親自觀察「鏡射」、「旋轉」與「平移」背後的幾何數學規律！
                 </p>
 
                 <!-- 互動圖卡展台 -->
@@ -154,7 +154,7 @@
                                 <line x1="50" y1="5" x2="50" y2="95" stroke="#f59e0b" stroke-width="4" stroke-dasharray="4"/>
                                 <path d="M 70 30 C 55 10, 55 90, 70 70 Z" fill="#818cf8" opacity="0.6"/>
                             </svg>
-                            <span class="absolute bottom-2 right-2 bg-indigo-600 text-white text-xs px-2 py-1 rounded-lg">點擊互動</span>
+                            <span class="absolute bottom-2 right-2 bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊互動</span>
                         </div>
                         <span class="bg-indigo-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">鏡射（Reflection）</span>
                         <p class="text-lg text-slate-700 font-medium">沿著對稱軸翻轉，左右完全重合對稱。</p>
@@ -172,10 +172,10 @@
                                 </g>
                                 <circle cx="50" cy="50" r="7" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
                             </svg>
-                            <span class="absolute bottom-2 right-2 bg-emerald-600 text-white text-xs px-2 py-1 rounded-lg">點擊互動</span>
+                            <span class="absolute bottom-2 right-2 bg-emerald-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊互動</span>
                         </div>
                         <span class="bg-emerald-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">旋轉（Rotation）</span>
-                        <p class="text-lg text-slate-700 font-medium">繞著中心點固定角度旋轉產生對稱。</p>
+                        <p class="text-lg text-slate-700 font-medium">繞著中心點旋轉固定角度重合。</p>
                     </div>
 
                     <!-- 卡片 3: 平移 (Translation) -->
@@ -190,10 +190,10 @@
                                 </g>
                                 <path d="M 30 30 L 70 30 M 30 30 L 30 70" stroke="#6366f1" stroke-width="2" stroke-dasharray="3"/>
                             </svg>
-                            <span class="absolute bottom-2 right-2 bg-amber-600 text-white text-xs px-2 py-1 rounded-lg">點擊互動</span>
+                            <span class="absolute bottom-2 right-2 bg-amber-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊互動</span>
                         </div>
                         <span class="bg-amber-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">平移（Translation）</span>
-                        <p class="text-lg text-slate-700 font-medium">圖形沿固定方向重複移動排列。</p>
+                        <p class="text-lg text-slate-700 font-medium">沿固定方向等距平移排列重複。</p>
                     </div>
                 </div>
 
@@ -220,13 +220,13 @@
                     
                     <!-- 模式切換鈕 (iPad 友善超大按鈕) -->
                     <div class="flex flex-wrap gap-2">
-                        <button id="modeTileBtn" onclick="setActivity2Mode('tile')" class="flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-indigo-600 text-white shadow-md active:scale-95 transition">
-                            <i class="fa-solid fa-shapes"></i> 人造伊斯蘭紋樣
+                        <button id="modeTileBtn" onclick="setActivity2Mode('tile')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition">
+                            <i class="fa-solid fa-shapes"></i> 伊斯蘭紋樣
                         </button>
-                        <button id="modeFernBtn" onclick="setActivity2Mode('fern')" class="flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
-                            <i class="fa-solid fa-leaf"></i> 自然植物 (鹿角蕨)
+                        <button id="modeFernBtn" onclick="setActivity2Mode('fern')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
+                            <i class="fa-solid fa-leaf"></i> 自然鹿角蕨
                         </button>
-                        <button id="modeHalfBtn" onclick="setActivity2Mode('half')" class="flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
+                        <button id="modeHalfBtn" onclick="setActivity2Mode('half')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
                             <i class="fa-solid fa-puzzle-piece"></i> 半成品補齊挑戰
                         </button>
                     </div>
@@ -235,23 +235,23 @@
                 <!-- 工具選擇區域 (透明網格、繪製對稱軸/旋轉中心、撤銷/清空) -->
                 <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-100 p-3.5 rounded-2xl mb-4 border border-slate-200">
                     <div class="flex flex-wrap items-center gap-2 md:gap-3">
-                        <span class="text-lg font-black text-slate-700">選擇工具：</span>
-                        <button id="toolAxisBtn" onclick="setDrawTool('axis')" class="px-4 py-2.5 rounded-xl font-bold text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition">
+                        <span class="text-lg font-black text-slate-700">解碼工具：</span>
+                        <button id="toolAxisBtn" onclick="setDrawTool('axis')" class="px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition">
                             <i class="fa-solid fa-slash"></i> 劃出對稱軸
                         </button>
-                        <button id="toolCenterBtn" onclick="setDrawTool('center')" class="px-4 py-2.5 rounded-xl font-bold text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition">
+                        <button id="toolCenterBtn" onclick="setDrawTool('center')" class="px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition">
                             <i class="fa-solid fa-circle-dot text-rose-500"></i> 標示旋轉中心
                         </button>
                     </div>
 
                     <div class="flex items-center gap-2">
-                        <button onclick="toggleGridOverlay()" class="px-4 py-2.5 bg-indigo-100 text-indigo-900 rounded-xl font-bold text-lg hover:bg-indigo-200 active:scale-95 transition">
+                        <button onclick="toggleGridOverlay()" class="px-4 py-2.5 bg-indigo-100 text-indigo-900 rounded-xl font-bold text-base hover:bg-indigo-200 active:scale-95 transition">
                             <i class="fa-solid fa-border-all"></i> <span id="gridToggleText">隱藏透明網格</span>
                         </button>
-                        <button onclick="undoCanvas2()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl font-bold text-lg hover:bg-slate-300 active:scale-95 transition">
+                        <button onclick="undoCanvas2()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl font-bold text-base hover:bg-slate-300 active:scale-95 transition">
                             <i class="fa-solid fa-rotate-left"></i> 復原
                         </button>
-                        <button onclick="clearCanvas2()" class="px-4 py-2.5 bg-rose-500 text-white rounded-xl font-bold text-lg hover:bg-rose-600 active:scale-95 transition shadow">
+                        <button onclick="clearCanvas2()" class="px-4 py-2.5 bg-rose-500 text-white rounded-xl font-bold text-base hover:bg-rose-600 active:scale-95 transition shadow">
                             <i class="fa-solid fa-trash-can"></i> 重繪
                         </button>
                     </div>
@@ -270,7 +270,7 @@
             </div>
         </section>
 
-        <!-- ==================== 活動三：綜合歸納（萬花筒與ORID） ==================== -->
+        <!-- ==================== 活動三：萬花筒與反思（創作與ORID） ==================== -->
         <section id="activity3" class="space-y-6 hidden">
             <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                 
@@ -297,10 +297,7 @@
                         </div>
                         <div class="flex gap-2">
                             <button onclick="clearKaleidoscope()" class="px-4 py-2 bg-rose-500 text-white rounded-xl font-bold text-base hover:bg-rose-600 active:scale-95 transition">
-                                清空
-                            </button>
-                            <button onclick="saveKaleidoscopePattern()" class="px-4 py-2 bg-emerald-600 text-white rounded-xl font-bold text-base hover:bg-emerald-700 active:scale-95 transition shadow">
-                                <i class="fa-solid fa-floppy-disk"></i> 儲存作品
+                                清空畫布
                             </button>
                         </div>
                     </div>
@@ -317,48 +314,112 @@
                             <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
                                 <i class="fa-solid fa-comments text-indigo-600"></i> ORID 學習思考回顧
                             </h2>
-                            <span class="text-sm bg-indigo-100 text-indigo-900 font-bold px-3 py-1 rounded-full border border-indigo-200">小組討論填答</span>
+                            <span class="text-sm bg-indigo-100 text-indigo-900 font-bold px-3 py-1 rounded-full border border-indigo-200">直接公開發布</span>
                         </div>
 
                         <!-- 預設數據完全歸零與清空 -->
-                        <form id="oridForm" class="space-y-4">
+                        <form id="oridForm" class="space-y-3">
+                            <!-- 組別/姓名 -->
+                            <div class="grid grid-cols-2 gap-2">
+                                <div>
+                                    <label class="block text-base font-black text-indigo-950 mb-1">班級 / 組別：</label>
+                                    <input type="text" id="groupName" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition">
+                                </div>
+                                <div>
+                                    <label class="block text-base font-black text-indigo-950 mb-1">學生姓名：</label>
+                                    <input type="text" id="studentName" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition">
+                                </div>
+                            </div>
+
                             <!-- Objective -->
                             <div>
-                                <label class="block text-lg font-black text-indigo-950 mb-1">
+                                <label class="block text-base font-black text-indigo-950 mb-1">
                                     [O] 觀察：今天觀察到的幾何紋樣中，有哪些重複出現的形狀？
                                 </label>
-                                <textarea id="oridO" rows="2" placeholder="請在此填寫你的觀察結果..." class="w-full p-3 border-2 border-slate-300 rounded-2xl text-lg focus:border-indigo-600 focus:outline-none transition"></textarea>
+                                <textarea id="oridO" rows="2" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
                             </div>
 
                             <!-- Reflective -->
                             <div>
-                                <label class="block text-lg font-black text-indigo-950 mb-1">
+                                <label class="block text-base font-black text-indigo-950 mb-1">
                                     [R] 感受：當萬花筒轉動產生無窮規律時，你有什麼感覺？
                                 </label>
-                                <textarea id="oridR" rows="2" placeholder="請在此填寫你的心得感受..." class="w-full p-3 border-2 border-slate-300 rounded-2xl text-lg focus:border-indigo-600 focus:outline-none transition"></textarea>
+                                <textarea id="oridR" rows="2" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
                             </div>
 
                             <!-- Interpretive -->
                             <div>
-                                <label class="block text-lg font-black text-indigo-950 mb-1">
+                                <label class="block text-base font-black text-indigo-950 mb-1">
                                     [I] 理解：為什麼古代建築（如清真寺）常使用數學規律來裝飾？
                                 </label>
-                                <textarea id="oridI" rows="2" placeholder="請在此填寫你的理解與想法..." class="w-full p-3 border-2 border-slate-300 rounded-2xl text-lg focus:border-indigo-600 focus:outline-none transition"></textarea>
+                                <textarea id="oridI" rows="2" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
                             </div>
 
                             <!-- Decisional -->
                             <div>
-                                <label class="block text-lg font-black text-indigo-950 mb-1">
+                                <label class="block text-base font-black text-indigo-950 mb-1">
                                     [D] 選擇：下次設計圖案時，你會選擇哪種對稱方式來展現美感？
                                 </label>
-                                <textarea id="oridD" rows="2" placeholder="請在此填寫你的選擇理由..." class="w-full p-3 border-2 border-slate-300 rounded-2xl text-lg focus:border-indigo-600 focus:outline-none transition"></textarea>
+                                <textarea id="oridD" rows="2" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
                             </div>
                         </form>
                     </div>
 
-                    <button type="button" onclick="submitORID()" class="mt-4 w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-black text-2xl rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> 提交學習紀錄
+                    <button type="button" onclick="submitORIDAndShowcase()" class="mt-4 w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-black text-2xl rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
+                        <i class="fa-solid fa-paper-plane"></i> 發布至成果展示牆
                     </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 任務四：成果展示牆（學生成果直接呈現） ==================== -->
+        <section id="activity4" class="space-y-6 hidden">
+            <div class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-amber-400 pb-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">
+                            <i class="fa-solid fa-gem"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-black text-indigo-950">全班幾何美學成果展示牆</h2>
+                            <p class="text-slate-600 font-bold text-sm md:text-base">學生的萬花筒創作與 ORID 思考直接於網頁公開展出，支援互相觀摩與按讚！</p>
+                        </div>
+                    </div>
+
+                    <!-- 操作按鈕群：匯出 CSV、清除所有作品 -->
+                    <div class="flex items-center gap-2">
+                        <button onclick="exportShowcaseCSV()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow active:scale-95 transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-csv"></i> 匯出學習歷程 CSV
+                        </button>
+                        <button onclick="openClearConfirmModal()" class="px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-black rounded-xl text-base active:scale-95 transition flex items-center gap-2">
+                            <i class="fa-solid fa-trash-can"></i> 清空作品
+                        </button>
+                    </div>
+                </div>
+
+                <!-- 數據總覽小看板 -->
+                <div class="grid grid-cols-3 gap-3 md:gap-6 mb-6">
+                    <div class="bg-indigo-50 p-4 rounded-2xl text-center border-2 border-indigo-200 shadow-sm">
+                        <span class="block text-sm md:text-base text-indigo-800 font-black">已發布作品總數</span>
+                        <span id="statTotalCount" class="text-3xl md:text-4xl font-black text-indigo-950">0</span>
+                    </div>
+                    <div class="bg-emerald-50 p-4 rounded-2xl text-center border-2 border-emerald-200 shadow-sm">
+                        <span class="block text-sm md:text-base text-emerald-800 font-black">萬花筒幾何創作</span>
+                        <span id="statKaleidoArtCount" class="text-3xl md:text-4xl font-black text-emerald-950">0</span>
+                    </div>
+                    <div class="bg-amber-50 p-4 rounded-2xl text-center border-2 border-amber-200 shadow-sm">
+                        <span class="block text-sm md:text-base text-amber-800 font-black">累計同儕愛心</span>
+                        <span id="statTotalLikes" class="text-3xl md:text-4xl font-black text-amber-950">0</span>
+                    </div>
+                </div>
+
+                <!-- 作品展示列表區 -->
+                <div id="showcaseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <!-- 若無作品時之提示 -->
+                    <div id="noSubmissionsBox" class="col-span-full py-16 text-center text-slate-400 font-black text-xl bg-slate-50 rounded-3xl border-2 border-dashed border-slate-300">
+                        <i class="fa-solid fa-palette text-5xl mb-3 text-slate-300 block"></i>
+                        目前尚無作品發布，快到「活動三」完成萬花筒並送出吧！
+                    </div>
                 </div>
             </div>
         </section>
@@ -367,7 +428,7 @@
 
     <!-- 網頁最下方專屬 Footer (嚴格依據規定中央文字，無視角干擾) -->
     <footer class="bg-indigo-950 text-indigo-200 py-4 px-4 text-center text-lg md:text-xl font-bold mt-auto border-t-4 border-indigo-800">
-        數感實驗室  | 互動學習系統 | 教材設計：S.C. Kuo
+        數感實驗室  | 互動學習系統 | Design：S.C. Kuo
     </footer>
 
     <!-- ================= Modals 彈出視窗區域 ================= -->
@@ -402,7 +463,7 @@
                 <i class="fa-solid fa-book-open text-amber-500"></i> 課程操作指引
             </h3>
 
-            <div class="space-y-4 text-slate-800 text-lg leading-relaxed font-medium">
+            <div class="space-y-3.5 text-slate-800 text-lg leading-relaxed font-medium">
                 <div class="p-3.5 bg-indigo-50 rounded-2xl border border-indigo-200">
                     <strong class="text-indigo-950 font-black text-xl">活動一：觀察幾何</strong><br>
                     點擊圖卡觀察鏡射、旋轉與平移變換，理解文化與數學的關聯。
@@ -415,95 +476,52 @@
                     <strong class="text-emerald-950 font-black text-xl">活動三：萬花筒與反思</strong><br>
                     塗鴉創作出無窮萬花筒作品，並填寫 ORID 焦點思考表單。
                 </div>
+                <div class="p-3.5 bg-purple-50 rounded-2xl border border-purple-200">
+                    <strong class="text-purple-950 font-black text-xl">成果展示牆</strong><br>
+                    作品發布後直接陳列，全班同儕互相觀摩與點讚！
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Modal 3: 教師專區 (密碼保護 teacher，無介面提示) -->
-    <div id="teacherModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-4xl w-full max-h-[88vh] flex flex-col shadow-2xl border-4 border-indigo-500 relative">
-            <button onclick="toggleModal('teacherModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
-
-            <!-- Password Auth View (無密碼提示文字) -->
-            <div id="teacherAuth" class="py-10 text-center space-y-5">
-                <div class="w-20 h-20 bg-indigo-100 text-indigo-700 rounded-full flex items-center justify-center text-4xl mx-auto shadow-inner">
-                    <i class="fa-solid fa-lock"></i>
-                </div>
-                <h3 class="text-3xl font-black text-slate-900">教師專區解鎖</h3>
-                <div class="flex justify-center items-center gap-2">
-                    <input type="password" id="teacherPass" placeholder="請輸入解鎖密碼" onkeyup="if(event.key==='Enter') authTeacher()" class="p-3.5 border-2 border-slate-300 rounded-2xl text-2xl text-center focus:border-indigo-600 focus:outline-none w-72 shadow-sm">
-                </div>
-                <div>
-                    <button onclick="authTeacher()" class="px-8 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl rounded-2xl shadow-lg active:scale-95 transition">
-                        驗證登入
-                    </button>
-                </div>
+    <!-- Modal 3: 作品放大預覽彈窗 -->
+    <div id="previewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 max-w-xl w-full text-center shadow-2xl border-4 border-indigo-400 relative">
+            <button onclick="toggleModal('previewModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
+            <h3 id="previewTitle" class="text-2xl font-black text-indigo-950 mb-3">萬花筒作品放大觀看</h3>
+            <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-950 mb-3">
+                <img id="previewImg" src="" alt="萬花筒作品大圖" class="w-full h-auto max-h-[65vh] object-contain mx-auto">
             </div>
-
-            <!-- Content Dashboard View (Unlocked) -->
-            <div id="teacherDashboard" class="hidden flex-col flex-grow overflow-hidden">
-                <div class="flex items-center justify-between border-b-2 border-slate-200 pb-3 mb-4">
-                    <h3 class="text-2xl md:text-3xl font-black text-indigo-950 flex items-center gap-2">
-                        <i class="fa-solid fa-chart-pie text-indigo-600"></i> 學生學習歷程與分析成果
-                    </h3>
-                    <button onclick="clearAllData()" class="px-4 py-2 bg-rose-100 text-rose-700 rounded-xl text-base font-bold hover:bg-rose-200 active:scale-95 transition">
-                        重置所有數據
-                    </button>
-                </div>
-
-                <!-- Teacher Analytics Metrics -->
-                <div class="grid grid-cols-3 gap-4 mb-4">
-                    <div class="bg-indigo-50 p-4 rounded-2xl text-center border border-indigo-200 shadow-sm">
-                        <span class="block text-base text-indigo-800 font-black">解碼標記次數</span>
-                        <span id="statDrawCount" class="text-3xl md:text-4xl font-black text-indigo-950">0</span>
-                    </div>
-                    <div class="bg-emerald-50 p-4 rounded-2xl text-center border border-emerald-200 shadow-sm">
-                        <span class="block text-base text-emerald-800 font-black">萬花筒作品數</span>
-                        <span id="statKaleidoCount" class="text-3xl md:text-4xl font-black text-emerald-950">0</span>
-                    </div>
-                    <div class="bg-amber-50 p-4 rounded-2xl text-center border border-amber-200 shadow-sm">
-                        <span class="block text-base text-amber-800 font-black">ORID 提交人數</span>
-                        <span id="statOridCount" class="text-3xl md:text-4xl font-black text-amber-950">0</span>
-                    </div>
-                </div>
-
-                <!-- Student Submissions & Gallery split -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow overflow-hidden">
-                    <!-- Gallery of saved Kaleidoscope artworks -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col h-full overflow-hidden">
-                        <h4 class="font-black text-slate-800 text-lg mb-2">萬花筒學生作品畫廊：</h4>
-                        <div id="kaleidoGallery" class="flex-grow overflow-y-auto grid grid-cols-2 gap-2 p-1">
-                            <p class="text-slate-400 text-center col-span-2 py-8 font-bold">尚無學生萬花筒作品</p>
-                        </div>
-                    </div>
-
-                    <!-- ORID responses log -->
-                    <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 flex flex-col h-full overflow-hidden">
-                        <h4 class="font-black text-slate-800 text-lg mb-2">ORID 學習討論填答紀錄：</h4>
-                        <div id="oridLogsContainer" class="flex-grow overflow-y-auto space-y-3 p-1">
-                            <p class="text-slate-400 text-center py-8 font-bold">目前尚無提交紀錄</p>
-                        </div>
-                    </div>
-                </div>
-
-            </div>
-
+            <button onclick="toggleModal('previewModal')" class="px-6 py-2.5 bg-indigo-600 text-white font-bold text-lg rounded-xl hover:bg-indigo-700 transition">關閉預覽</button>
         </div>
     </div>
 
-    <!-- Notification Toast Popup -->
+    <!-- Modal 4: 自訂確認清空彈窗 (替代原生 confirm) -->
+    <div id="clearConfirmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border-4 border-rose-400 relative">
+            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
+                <i class="fa-solid fa-triangle-exclamation"></i>
+            </div>
+            <h3 class="text-2xl font-black text-slate-900 mb-2">確定要清空所有作品嗎？</h3>
+            <p class="text-slate-600 font-bold mb-6">此動作將清除成果展示牆上的所有學生作品與按讚記錄。</p>
+            <div class="flex gap-3">
+                <button onclick="toggleModal('clearConfirmModal')" class="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-2xl transition text-lg">取消</button>
+                <button onclick="confirmClearAllShowcase()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition text-lg shadow-md">確定清空</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Notification Toast Popup (無原生 alert) -->
     <div id="toast" class="fixed bottom-12 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl text-xl font-black transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-3 border-2 border-slate-700">
         <i class="fa-solid fa-circle-check text-emerald-400"></i>
         <span id="toastMsg">通知訊息</span>
     </div>
 
     <script>
-        // 全局狀態管理 (初始化預設歸零)
+        // 全局狀態管理 (所有預設數據完全歸零)
         const appState = {
             drawCount: 0,
-            kaleidoCount: 0,
-            oridSubmissions: [],
-            savedKaleidoscopes: [],
+            showcaseSubmissions: [],
             act2Mode: 'tile', // 'tile', 'fern', 'half'
             act2Tool: 'axis', // 'axis', 'center'
             showGrid: true,
@@ -516,24 +534,42 @@
             initActivity2Canvas();
             initKaleidoscopeCanvas();
             window.addEventListener('resize', handleCanvasResize);
+
+            // 支援鍵盤 ESC 關閉所有彈窗
+            window.addEventListener('keydown', function(e) {
+                if (e.key === 'Escape') {
+                    ['qrModal', 'guideModal', 'previewModal', 'clearConfirmModal'].forEach(id => {
+                        const m = document.getElementById(id);
+                        if (m && !m.classList.contains('hidden')) {
+                            m.classList.add('hidden');
+                        }
+                    });
+                }
+            });
         };
 
         // 活動分頁切換
         function switchActivity(actNum) {
-            document.getElementById('activity1').classList.add('hidden');
-            document.getElementById('activity2').classList.add('hidden');
-            document.getElementById('activity3').classList.add('hidden');
+            for (let i = 1; i <= 4; i++) {
+                const actSection = document.getElementById(`activity${i}`);
+                const tabBtn = document.getElementById(`tabBtn${i}`);
+                
+                if (actSection) {
+                    if (i === actNum) {
+                        actSection.classList.remove('hidden');
+                    } else {
+                        actSection.classList.add('hidden');
+                    }
+                }
 
-            for (let i = 1; i <= 3; i++) {
-                const btn = document.getElementById(`tabBtn${i}`);
-                if (i === actNum) {
-                    btn.className = "py-3.5 md:py-4 px-2 rounded-2xl text-lg md:text-2xl font-black transition flex flex-col md:flex-row items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95";
-                } else {
-                    btn.className = "py-3.5 md:py-4 px-2 rounded-2xl text-lg md:text-2xl font-black transition flex flex-col md:flex-row items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95";
+                if (tabBtn) {
+                    if (i === actNum) {
+                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95";
+                    } else {
+                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95";
+                    }
                 }
             }
-
-            document.getElementById(`activity${actNum}`).classList.remove('hidden');
 
             if (actNum === 2) {
                 setTimeout(resizeCanvas2, 80);
@@ -544,44 +580,72 @@
 
         function toggleModal(modalId) {
             const modal = document.getElementById(modalId);
-            modal.classList.toggle('hidden');
+            if (modal) {
+                modal.classList.toggle('hidden');
+            }
         }
 
-        // 全螢幕功能切換
+        // 全螢幕功能切換 (相容 iOS WebKit 與標準 API)
         function toggleFullscreen() {
             const icon = document.getElementById('fullscreenIcon');
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    showToast('無法啟用全螢幕模式');
-                });
-                icon.className = 'fa-solid fa-compress';
+            const docEl = document.documentElement;
+
+            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
+                if (docEl.requestFullscreen) {
+                    docEl.requestFullscreen().catch(() => showToast('目前環境無法啟用全螢幕'));
+                } else if (docEl.webkitRequestFullscreen) {
+                    docEl.webkitRequestFullscreen();
+                }
+                if (icon) icon.className = 'fa-solid fa-compress';
             } else {
                 if (document.exitFullscreen) {
                     document.exitFullscreen();
+                } else if (document.webkitExitFullscreen) {
+                    document.webkitExitFullscreen();
+                }
+                if (icon) icon.className = 'fa-solid fa-expand';
+            }
+        }
+
+        // 監聽全螢幕變化事件以保持圖示一致
+        document.addEventListener('fullscreenchange', syncFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', syncFullscreenIcon);
+        function syncFullscreenIcon() {
+            const icon = document.getElementById('fullscreenIcon');
+            if (icon) {
+                if (document.fullscreenElement || document.webkitFullscreenElement) {
+                    icon.className = 'fa-solid fa-compress';
+                } else {
                     icon.className = 'fa-solid fa-expand';
                 }
             }
         }
 
-        // 動態生成 QR Code (支援 iPad 直接開啟當前網址)
+        // 動態生成 QR Code (支援 iPad 相機直接掃描開啟當前網址)
         function initQRCode() {
             const qrContainer = document.getElementById('qrcodeCanvas');
+            if (!qrContainer) return;
             qrContainer.innerHTML = '';
             let currentUrl = window.location.href;
             if (currentUrl.startsWith('about:') || currentUrl.startsWith('blob:')) {
                 currentUrl = 'https://math-sense.edu.tw';
             }
-            new QRCode(qrContainer, {
-                text: currentUrl,
-                width: 190,
-                height: 190,
-                colorDark: "#1e1b4b",
-                colorLight: "#ffffff",
-                correctLevel: QRCode.CorrectLevel.H
-            });
+            try {
+                new QRCode(qrContainer, {
+                    text: currentUrl,
+                    width: 190,
+                    height: 190,
+                    colorDark: "#1e1b4b",
+                    colorLight: "#ffffff",
+                    correctLevel: QRCode.CorrectLevel.H
+                });
+            } catch (err) {
+                // 備用容錯：直接載入 QuickChart API 圖片
+                qrContainer.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(currentUrl)}&size=190" alt="QR Code" class="rounded-lg shadow">`;
+            }
         }
 
-        // 一鍵複製網址功能 (支援舊版設備備用)
+        // 一鍵複製網址功能 (支援現代 clipboard 與 execCommand 備援)
         function copyCurrentURL() {
             const urlToCopy = window.location.href;
             if (navigator.clipboard && window.isSecureContext) {
@@ -603,76 +667,11 @@
 
         function showCopySuccess() {
             const alertText = document.getElementById('copyAlert');
-            alertText.style.opacity = '1';
-            setTimeout(() => { alertText.style.opacity = '0'; }, 2200);
-        }
-
-        // 教師專區驗證 (密碼為 teacher，不提示)
-        function openTeacherZone() {
-            document.getElementById('teacherAuth').classList.remove('hidden');
-            document.getElementById('teacherDashboard').classList.add('hidden');
-            document.getElementById('teacherPass').value = '';
-            toggleModal('teacherModal');
-        }
-
-        function authTeacher() {
-            const pass = document.getElementById('teacherPass').value;
-            if (pass === 'teacher') {
-                document.getElementById('teacherAuth').classList.add('hidden');
-                document.getElementById('teacherDashboard').classList.remove('hidden');
-                document.getElementById('teacherDashboard').classList.add('flex');
-                updateTeacherDashboard();
-            } else {
-                showToast('密碼不正確，請重新輸入');
+            if (alertText) {
+                alertText.style.opacity = '1';
+                setTimeout(() => { alertText.style.opacity = '0'; }, 2200);
             }
-        }
-
-        function updateTeacherDashboard() {
-            document.getElementById('statDrawCount').innerText = appState.drawCount;
-            document.getElementById('statKaleidoCount').innerText = appState.kaleidoCount;
-            document.getElementById('statOridCount').innerText = appState.oridSubmissions.length;
-
-            // Render saved kaleidoscope artworks
-            const gallery = document.getElementById('kaleidoGallery');
-            if (appState.savedKaleidoscopes.length === 0) {
-                gallery.innerHTML = `<p class="text-slate-400 text-center col-span-2 py-8 font-bold">尚無學生萬花筒作品</p>`;
-            } else {
-                gallery.innerHTML = appState.savedKaleidoscopes.map((dataUrl, i) => `
-                    <div class="bg-white p-1 rounded-xl border border-slate-200 shadow-sm flex flex-col items-center">
-                        <img src="${dataUrl}" class="w-full h-24 object-cover rounded-lg border">
-                        <span class="text-xs font-bold text-slate-500 mt-1">作品 #${i + 1}</span>
-                    </div>
-                `).join('');
-            }
-
-            // Render ORID log submissions
-            const logsContainer = document.getElementById('oridLogsContainer');
-            if (appState.oridSubmissions.length === 0) {
-                logsContainer.innerHTML = `<p class="text-slate-400 text-center py-8 font-bold">目前尚無提交紀錄</p>`;
-                return;
-            }
-
-            logsContainer.innerHTML = appState.oridSubmissions.map((sub, idx) => `
-                <div class="bg-white p-3.5 rounded-2xl border border-slate-200 shadow-sm space-y-1">
-                    <div class="flex justify-between text-xs font-bold text-slate-500 mb-1 border-b pb-1">
-                        <span>小組紀錄 #${idx + 1}</span>
-                        <span>${sub.time}</span>
-                    </div>
-                    <p class="text-sm font-bold text-indigo-950"><strong>[O] 觀察：</strong> ${sub.o}</p>
-                    <p class="text-sm font-bold text-indigo-950"><strong>[R] 感受：</strong> ${sub.r}</p>
-                    <p class="text-sm font-bold text-indigo-950"><strong>[I] 理解：</strong> ${sub.i}</p>
-                    <p class="text-sm font-bold text-indigo-950"><strong>[D] 選擇：</strong> ${sub.d}</p>
-                </div>
-            `).reverse().join('');
-        }
-
-        function clearAllData() {
-            appState.drawCount = 0;
-            appState.kaleidoCount = 0;
-            appState.oridSubmissions = [];
-            appState.savedKaleidoscopes = [];
-            updateTeacherDashboard();
-            showToast('所有數據與歷程已重置歸零');
+            showToast('已成功複製網址！');
         }
 
         // 活動一動畫互動點擊觸發
@@ -692,6 +691,7 @@
 
         function initActivity2Canvas() {
             canvas2 = document.getElementById('canvas2');
+            if (!canvas2) return;
             ctx2 = canvas2.getContext('2d');
 
             canvas2.addEventListener('pointerdown', handlePointerDown2);
@@ -712,9 +712,9 @@
 
         function setActivity2Mode(mode) {
             appState.act2Mode = mode;
-            document.getElementById('modeTileBtn').className = mode === 'tile' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
-            document.getElementById('modeFernBtn').className = mode === 'fern' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
-            document.getElementById('modeHalfBtn').className = mode === 'half' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-lg md:text-xl bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
+            document.getElementById('modeTileBtn').className = mode === 'tile' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
+            document.getElementById('modeFernBtn').className = mode === 'fern' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
+            document.getElementById('modeHalfBtn').className = mode === 'half' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
 
             const inst = document.getElementById('act2Instructions');
             if (mode === 'tile') {
@@ -722,7 +722,7 @@
             } else if (mode === 'fern') {
                 inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>請標示自然鹿角蕨的隱藏對稱軸，對比人造與自然對稱！</span>`;
             } else {
-                inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>幾何半成品挑戰：請畫出對稱軸，並於右側補齊對應的圖案！</span>`;
+                inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>幾何半成品挑戰：請畫出對稱軸，並嘗試標出旋轉中心！</span>`;
             }
 
             clearCanvas2();
@@ -730,8 +730,8 @@
 
         function setDrawTool(tool) {
             appState.act2Tool = tool;
-            document.getElementById('toolAxisBtn').className = tool === 'axis' ? 'px-4 py-2.5 rounded-xl font-bold text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
-            document.getElementById('toolCenterBtn').className = tool === 'center' ? 'px-4 py-2.5 rounded-xl font-bold text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
+            document.getElementById('toolAxisBtn').className = tool === 'axis' ? 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
+            document.getElementById('toolCenterBtn').className = tool === 'center' ? 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
         }
 
         function toggleGridOverlay() {
@@ -773,7 +773,6 @@
             const currentY = e.clientY - rect.top;
 
             redrawCanvas2();
-            // Draw realtime rubberband line preview
             ctx2.beginPath();
             ctx2.moveTo(startX2, startY2);
             ctx2.lineTo(currentX, currentY);
@@ -791,7 +790,6 @@
             const endX = e.clientX - rect.left;
             const endY = e.clientY - rect.top;
 
-            // Only register if moved at least 5 pixels
             if (Math.hypot(endX - startX2, endY - startY2) > 5) {
                 drawnShapes2.push({ type: 'axis', x1: startX2, y1: startY2, x2: endX, y2: endY });
                 appState.drawCount++;
@@ -808,7 +806,6 @@
 
             ctx2.clearRect(0, 0, w, h);
 
-            // Draw Background Patterns
             if (appState.act2Mode === 'tile') {
                 drawIslamicTileBackground(ctx2, cx, cy);
             } else if (appState.act2Mode === 'fern') {
@@ -817,12 +814,10 @@
                 drawHalfPatternBackground(ctx2, cx, cy);
             }
 
-            // Draw Grid overlay
             if (appState.showGrid) {
                 drawTransparentGrid(ctx2, w, h);
             }
 
-            // Draw User annotations
             drawnShapes2.forEach(shape => {
                 if (shape.type === 'axis') {
                     ctx2.beginPath();
@@ -903,7 +898,6 @@
 
         function drawHalfPatternBackground(ctx, cx, cy) {
             ctx.save();
-            // Vertical symmetry line
             ctx.strokeStyle = '#f59e0b';
             ctx.lineWidth = 3;
             ctx.setLineDash([8, 8]);
@@ -913,7 +907,6 @@
             ctx.stroke();
             ctx.setLineDash([]);
 
-            // Draw Left half motif
             ctx.translate(cx, cy);
             ctx.strokeStyle = '#60a5fa';
             ctx.lineWidth = 5;
@@ -935,6 +928,7 @@
 
         function initKaleidoscopeCanvas() {
             kCanvas = document.getElementById('kaleidoscopeCanvas');
+            if (!kCanvas) return;
             kCtx = kCanvas.getContext('2d');
 
             kCanvas.addEventListener('pointerdown', startKDraw);
@@ -1009,13 +1003,11 @@
             for (let i = 0; i < slices; i++) {
                 kCtx.rotate((Math.PI * 2) / slices);
 
-                // Main stroke
                 kCtx.beginPath();
                 kCtx.moveTo(kPrevX, kPrevY);
                 kCtx.lineTo(currX, currY);
                 kCtx.stroke();
 
-                // Mirrored stroke
                 kCtx.save();
                 kCtx.scale(1, -1);
                 kCtx.beginPath();
@@ -1034,42 +1026,196 @@
             isKDrawing = false;
         }
 
-        function saveKaleidoscopePattern() {
-            appState.kaleidoCount++;
-            const dataUrl = kCanvas.toDataURL('image/png');
-            appState.savedKaleidoscopes.push(dataUrl);
-            showToast('萬花筒作品已儲存到教師專區！');
-        }
-
-        // ORID 提交表單處理 (資料庫歸零無預載)
-        function submitORID() {
+        // 送出 ORID 與萬花筒作品至網頁成果展示牆
+        function submitORIDAndShowcase() {
+            const groupName = document.getElementById('groupName').value.trim() || '未命名小組';
+            const studentName = document.getElementById('studentName').value.trim() || '匿名偵探';
             const o = document.getElementById('oridO').value.trim();
             const r = document.getElementById('oridR').value.trim();
             const i = document.getElementById('oridI').value.trim();
             const d = document.getElementById('oridD').value.trim();
 
             if (!o || !r || !i || !d) {
-                showToast('請將四個 ORID 問題全部填寫完整！');
+                showToast('請先填寫完成所有 ORID 四個思考提問！');
                 return;
             }
 
             const now = new Date();
             const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
+            const kaleidoDataUrl = kCanvas.toDataURL('image/png');
 
-            appState.oridSubmissions.push({ o, r, i, d, time: timeStr });
+            const submission = {
+                id: Date.now(),
+                group: groupName,
+                student: studentName,
+                time: timeStr,
+                image: kaleidoDataUrl,
+                o: o,
+                r: r,
+                i: i,
+                d: d,
+                likes: 0
+            };
 
-            // 表單重置保持完全清空
+            appState.showcaseSubmissions.unshift(submission);
+
+            // 清空表單
             document.getElementById('oridForm').reset();
-            showToast('學習紀錄與 ORID 已成功提交！');
+            clearKaleidoscope();
+
+            // 重新渲染展示牆
+            renderShowcaseWall();
+
+            showToast('作品已成功發布至成果展示牆！');
+
+            // 自動切換到成果展示牆分頁
+            switchActivity(4);
+        }
+
+        // 渲染成果展示牆
+        function renderShowcaseWall() {
+            const grid = document.getElementById('showcaseGrid');
+            const noSubBox = document.getElementById('noSubmissionsBox');
+            const totalCountEl = document.getElementById('statTotalCount');
+            const artCountEl = document.getElementById('statKaleidoArtCount');
+            const totalLikesEl = document.getElementById('statTotalLikes');
+            const countBadge = document.getElementById('showcaseCountBadge');
+
+            const count = appState.showcaseSubmissions.length;
+            totalCountEl.innerText = count;
+            artCountEl.innerText = count;
+            countBadge.innerText = count;
+
+            let totalLikes = 0;
+            appState.showcaseSubmissions.forEach(s => totalLikes += s.likes);
+            totalLikesEl.innerText = totalLikes;
+
+            if (count === 0) {
+                if (noSubBox) noSubBox.classList.remove('hidden');
+                grid.innerHTML = `
+                    <div id="noSubmissionsBox" class="col-span-full py-16 text-center text-slate-400 font-black text-xl bg-slate-50 rounded-3xl border-2 border-dashed border-slate-300">
+                        <i class="fa-solid fa-palette text-5xl mb-3 text-slate-300 block"></i>
+                        目前尚無作品發布，快到「活動三」完成萬花筒並送出吧！
+                    </div>
+                `;
+                return;
+            }
+
+            grid.innerHTML = appState.showcaseSubmissions.map((item, idx) => `
+                <div class="bg-white rounded-3xl p-5 border-2 border-indigo-100 shadow-md flex flex-col justify-between space-y-4 hover:shadow-xl transition duration-200">
+                    <div>
+                        <!-- Header info -->
+                        <div class="flex items-center justify-between border-b pb-2 mb-3">
+                            <div>
+                                <span class="bg-indigo-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">#${count - idx}</span>
+                                <span class="font-black text-slate-900 text-lg ml-1.5">${escapeHTML(item.group)}</span>
+                            </div>
+                            <span class="text-xs font-bold text-slate-400">${item.time}</span>
+                        </div>
+
+                        <!-- Artwork thumbnail with click-to-zoom -->
+                        <div onclick="openPreview('${item.image}', '${escapeHTML(item.group)} - ${escapeHTML(item.student)}')" class="cursor-pointer group relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 aspect-video flex items-center justify-center mb-3">
+                            <img src="${item.image}" alt="萬花筒創作" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
+                            <span class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-xs font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition">
+                                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大
+                            </span>
+                        </div>
+
+                        <div class="text-xs font-black text-indigo-700 mb-2">創作者：${escapeHTML(item.student)}</div>
+
+                        <!-- ORID Content -->
+                        <div class="space-y-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200">
+                            <p><strong>[O] 觀察：</strong> ${escapeHTML(item.o)}</p>
+                            <p><strong>[R] 感受：</strong> ${escapeHTML(item.r)}</p>
+                            <p><strong>[I] 理解：</strong> ${escapeHTML(item.i)}</p>
+                            <p><strong>[D] 選擇：</strong> ${escapeHTML(item.d)}</p>
+                        </div>
+                    </div>
+
+                    <!-- Like interactive button -->
+                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
+                        <button onclick="likeSubmission(${item.id})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-rose-600 font-black bg-rose-50 hover:bg-rose-100 active:scale-90 transition">
+                            <i class="fa-solid fa-heart"></i>
+                            <span id="likeBtnText-${item.id}">讚 (${item.likes})</span>
+                        </button>
+                        <span class="text-xs text-slate-400 font-bold">全班公開觀摩中</span>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        function likeSubmission(id) {
+            const item = appState.showcaseSubmissions.find(s => s.id === id);
+            if (item) {
+                item.likes++;
+                renderShowcaseWall();
+                showToast(`已給予「${item.group}」一顆愛心！`);
+            }
+        }
+
+        function openPreview(imgUrl, title) {
+            document.getElementById('previewImg').src = imgUrl;
+            document.getElementById('previewTitle').innerText = `${title} 的萬花筒創作`;
+            toggleModal('previewModal');
+        }
+
+        function openClearConfirmModal() {
+            if (appState.showcaseSubmissions.length === 0) {
+                showToast('展示牆目前沒有任何作品可清空！');
+                return;
+            }
+            toggleModal('clearConfirmModal');
+        }
+
+        function confirmClearAllShowcase() {
+            appState.showcaseSubmissions = [];
+            renderShowcaseWall();
+            toggleModal('clearConfirmModal');
+            showToast('展示牆所有作品已清空完畢！');
+        }
+
+        // 匯出成果為 CSV 報表
+        function exportShowcaseCSV() {
+            if (appState.showcaseSubmissions.length === 0) {
+                showToast('尚無任何學習歷程紀錄可匯出！');
+                return;
+            }
+
+            let csvContent = "\uFEFF序號,組別,學生姓名,發布時間,ORID_客觀觀察[O],ORID_感性反應[R],ORID_詮釋理解[I],ORID_決定行動[D],獲得愛心數\n";
+
+            appState.showcaseSubmissions.forEach((item, idx) => {
+                const clean = str => `"${(str || '').replace(/"/g, '""')}"`;
+                csvContent += `${idx + 1},${clean(item.group)},${clean(item.student)},${clean(item.time)},${clean(item.o)},${clean(item.r)},${clean(item.i)},${clean(item.d)},${item.likes}\n`;
+            });
+
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const link = document.createElement('a');
+            link.setAttribute('href', url);
+            link.setAttribute('download', `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            showToast('已成功匯出全班成果 CSV 試算表！');
+        }
+
+        function escapeHTML(str) {
+            if (!str) return '';
+            return str.replace(/[&<>'"]/g, 
+                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+            );
         }
 
         function showToast(msg) {
             const toast = document.getElementById('toast');
-            document.getElementById('toastMsg').innerText = msg;
-            toast.style.opacity = '1';
-            setTimeout(() => {
-                toast.style.opacity = '0';
-            }, 2500);
+            const toastMsg = document.getElementById('toastMsg');
+            if (toast && toastMsg) {
+                toastMsg.innerText = msg;
+                toast.style.opacity = '1';
+                setTimeout(() => {
+                    toast.style.opacity = '0';
+                }, 2400);
+            }
         }
 
         function handleCanvasResize() {

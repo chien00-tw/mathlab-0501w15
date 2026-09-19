@@ -10,6 +10,8 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- QRCode.js Library -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <!-- html2canvas Library for Image Export -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
     
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
@@ -83,9 +85,9 @@
             <span class="bg-amber-400 text-indigo-950 font-black text-xl md:text-2xl px-3.5 py-1.5 rounded-2xl shadow-md border-2 border-amber-300 flex items-center gap-2">
                 <i class="fa-solid fa-shapes"></i> 規律的視覺美感
             </span>
-            <!-- 版本控制編號：格式變更為簡潔版號 v1.1.0，隨後續修改疊加序號 -->
+            <!-- 版本控制編號：格式變更為簡潔版號 v1.2.0，隨後續修改疊加序號 -->
             <span id="versionTag" class="text-xs md:text-sm bg-indigo-900/90 text-amber-300 px-3 py-1 rounded-xl font-mono font-bold border border-indigo-400/50 shadow-inner">
-                v1.1.0
+                v1.2.0
             </span>
         </div>
 
@@ -111,22 +113,27 @@
     <!-- 主要內容區 -->
     <main class="flex-grow max-w-7xl w-full mx-auto p-3 md:p-6 flex flex-col space-y-6">
 
-        <!-- 活動頁籤導覽 (4 大分頁，包含直接呈現學生作品的「成果展示牆」) -->
-        <div class="grid grid-cols-2 md:grid-cols-4 gap-2 md:gap-3 bg-white p-2 rounded-3xl shadow-md border-2 border-slate-200">
-            <button id="tabBtn1" onclick="switchActivity(1)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95">
-                <i class="fa-solid fa-compass text-xl md:text-2xl"></i>
+        <!-- 活動頁籤導覽 (5 大分頁，包含全新 2 分鐘極速解碼挑戰賽與成果展示牆) -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 bg-white p-2 rounded-3xl shadow-md border-2 border-slate-200">
+            <button id="tabBtn1" onclick="switchActivity(1)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95">
+                <i class="fa-solid fa-compass text-lg md:text-xl"></i>
                 <span>活動一：課程導入</span>
             </button>
-            <button id="tabBtn2" onclick="switchActivity(2)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-pen-ruler text-xl md:text-2xl"></i>
+            <button id="tabBtn2" onclick="switchActivity(2)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
+                <i class="fa-solid fa-pen-ruler text-lg md:text-xl"></i>
                 <span>活動二：對稱解碼</span>
             </button>
-            <button id="tabBtn3" onclick="switchActivity(3)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-wand-magic-sparkles text-xl md:text-2xl"></i>
-                <span>活動三：萬花筒與反思</span>
+            <button id="tabBtn3" onclick="switchActivity(3)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
+                <i class="fa-solid fa-wand-magic-sparkles text-lg md:text-xl"></i>
+                <span>活動三：萬花筒反思</span>
             </button>
-            <button id="tabBtn4" onclick="switchActivity(4)" class="py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
-                <i class="fa-solid fa-gem text-xl md:text-2xl text-amber-500"></i>
+            <button id="tabBtn4" onclick="switchActivity(4)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
+                <i class="fa-solid fa-gamepad text-lg md:text-xl text-rose-500"></i>
+                <span>挑戰：2分鐘解密</span>
+                <span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse">HOT</span>
+            </button>
+            <button id="tabBtn5" onclick="switchActivity(5)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
+                <i class="fa-solid fa-gem text-lg md:text-xl text-amber-500"></i>
                 <span>成果展示牆</span>
                 <span id="showcaseCountBadge" class="bg-amber-400 text-indigo-950 text-xs px-2 py-0.5 rounded-full font-black ml-1">0</span>
             </button>
@@ -372,9 +379,119 @@
             </div>
         </section>
 
-        <!-- ==================== 任務四：成果展示牆（學生成果直接呈現） ==================== -->
+        <!-- ==================== 活動四：2分鐘幾何極速解碼挑戰賽 ==================== -->
         <section id="activity4" class="space-y-6 hidden">
             <div class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
+                <!-- Header of Game -->
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-rose-500 pb-4 mb-6">
+                    <div class="flex items-center gap-3">
+                        <div class="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-md">
+                            <i class="fa-solid fa-gamepad"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-2xl md:text-3xl font-black text-slate-900">幾何對稱極速挑戰賽</h2>
+                            <p class="text-slate-600 font-bold text-sm md:text-base">限時 2 分鐘（120 秒）！答錯累計 3 次即終止遊戲！考驗你的幾何規律反應力！</p>
+                        </div>
+                    </div>
+
+                    <!-- Status indicators: Timer, Lives, Score -->
+                    <div class="flex items-center gap-3">
+                        <div class="bg-amber-50 border-2 border-amber-300 px-4 py-2 rounded-2xl text-center shadow-sm">
+                            <span class="block text-xs font-black text-amber-800">剩餘時間</span>
+                            <span id="gameTimerText" class="text-2xl font-black text-amber-950 font-mono">02:00</span>
+                        </div>
+                        <div class="bg-rose-50 border-2 border-rose-300 px-4 py-2 rounded-2xl text-center shadow-sm min-w-[100px]">
+                            <span class="block text-xs font-black text-rose-800">生命值 (三次終止)</span>
+                            <div id="gameLivesBox" class="text-xl text-rose-500 flex justify-center gap-1 mt-0.5">
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                                <i class="fa-solid fa-heart"></i>
+                            </div>
+                        </div>
+                        <div class="bg-emerald-50 border-2 border-emerald-300 px-4 py-2 rounded-2xl text-center shadow-sm min-w-[80px]">
+                            <span class="block text-xs font-black text-emerald-800">挑戰得分</span>
+                            <span id="gameScoreText" class="text-2xl font-black text-emerald-950 font-mono">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Game Container Views -->
+                <div id="gamePlayContainer" class="min-h-[360px] flex flex-col justify-center items-center">
+                    <!-- Start View -->
+                    <div id="gameStartCard" class="text-center space-y-5 max-w-lg py-8">
+                        <div class="w-24 h-24 bg-gradient-to-tr from-rose-500 to-amber-400 text-white rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-xl animate-bounce">
+                            <i class="fa-solid fa-stopwatch-20"></i>
+                        </div>
+                        <h3 class="text-2xl md:text-3xl font-black text-slate-900">準備好進行 2 分鐘幾何挑戰了嗎？</h3>
+                        <p class="text-slate-600 text-lg font-bold leading-relaxed">
+                            請在 120 秒內快速判斷題目中的幾何對稱、旋轉、平移與生活規律！答對得分，答錯將失去 1 顆愛心，<span class="text-rose-600 font-black">累計錯誤 3 次遊戲立即終止</span>！
+                        </p>
+                        <button onclick="startSymmetryGame()" class="w-full py-4 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-2xl rounded-2xl shadow-xl active:scale-95 transition">
+                            <i class="fa-solid fa-play mr-2"></i> 開始 2 分鐘挑戰
+                        </button>
+                    </div>
+
+                    <!-- Question Active View -->
+                    <div id="gameActiveCard" class="hidden w-full max-w-2xl space-y-6">
+                        <!-- Progress bar -->
+                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
+                            <div id="gameProgressBar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-full w-full transition-all duration-1000 ease-linear"></div>
+                        </div>
+
+                        <!-- Question Box -->
+                        <div class="bg-indigo-50 border-2 border-indigo-200 p-6 rounded-3xl shadow-sm">
+                            <div class="flex items-center justify-between mb-3">
+                                <span id="gameQCategory" class="bg-indigo-600 text-white text-xs font-black px-3 py-1 rounded-full">線對稱幾何</span>
+                                <span id="gameQIndex" class="text-sm font-black text-indigo-900">第 1 題</span>
+                            </div>
+                            <h4 id="gameQuestionText" class="text-xl md:text-2xl font-black text-slate-900 leading-snug">
+                                題目讀取中...
+                            </h4>
+                        </div>
+
+                        <!-- Answer Options -->
+                        <div id="gameOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                            <!-- Dynamic Options Buttons -->
+                        </div>
+                    </div>
+
+                    <!-- Game Over / Result View -->
+                    <div id="gameOverCard" class="hidden text-center space-y-5 max-w-md py-6">
+                        <div id="gameOverIcon" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md"></div>
+                        <h3 id="gameOverTitle" class="text-3xl font-black text-slate-900">挑戰結束</h3>
+                        <p id="gameOverMsg" class="text-lg font-bold text-slate-600">訊息提示</p>
+
+                        <div class="bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl space-y-3">
+                            <div class="flex justify-between items-center text-base font-bold">
+                                <span class="text-slate-500">最終獲得分數：</span>
+                                <span id="finalScoreVal" class="text-3xl font-black text-indigo-600 font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-base font-bold">
+                                <span class="text-slate-500">作答題數：</span>
+                                <span id="finalQuestionsAnswered" class="text-xl font-black text-slate-800 font-mono">0</span>
+                            </div>
+                            <div class="flex justify-between items-center text-base font-bold">
+                                <span class="text-slate-500">獲得榮譽稱號：</span>
+                                <span id="finalBadgeVal" class="text-lg font-black text-amber-600">幾何見習偵探</span>
+                            </div>
+                        </div>
+
+                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
+                            <button onclick="startSymmetryGame()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg rounded-2xl shadow active:scale-95 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-rotate-right"></i> 再挑戰一次
+                            </button>
+                            <button onclick="switchActivity(5)" class="flex-1 py-3.5 bg-amber-400 hover:bg-amber-500 text-indigo-950 font-black text-lg rounded-2xl shadow active:scale-95 transition flex items-center justify-center gap-2">
+                                <i class="fa-solid fa-gem"></i> 前往成果展示牆
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================== 活動五：成果展示牆（學生成果直接呈現與圖片匯出） ==================== -->
+        <section id="activity5" class="space-y-6 hidden">
+            <div id="showcaseExportArea" class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-amber-400 pb-4 mb-6">
                     <div class="flex items-center gap-3">
                         <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">
@@ -386,10 +503,10 @@
                         </div>
                     </div>
 
-                    <!-- 操作按鈕群：匯出 CSV、清除所有作品 -->
+                    <!-- 操作按鈕群：匯出 PNG 圖檔、清除所有作品 -->
                     <div class="flex items-center gap-2">
-                        <button onclick="exportShowcaseCSV()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow active:scale-95 transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-csv"></i> 匯出學習歷程 CSV
+                        <button onclick="exportShowcasePNG()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow active:scale-95 transition flex items-center gap-2">
+                            <i class="fa-solid fa-file-image"></i> 匯出成果圖檔 (PNG)
                         </button>
                         <button onclick="openClearConfirmModal()" class="px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-black rounded-xl text-base active:scale-95 transition flex items-center gap-2">
                             <i class="fa-solid fa-trash-can"></i> 清空作品
@@ -398,18 +515,22 @@
                 </div>
 
                 <!-- 數據總覽小看板 -->
-                <div class="grid grid-cols-3 gap-3 md:gap-6 mb-6">
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
                     <div class="bg-indigo-50 p-4 rounded-2xl text-center border-2 border-indigo-200 shadow-sm">
-                        <span class="block text-sm md:text-base text-indigo-800 font-black">已發布作品總數</span>
-                        <span id="statTotalCount" class="text-3xl md:text-4xl font-black text-indigo-950">0</span>
+                        <span class="block text-xs md:text-sm text-indigo-800 font-black">已發布作品總數</span>
+                        <span id="statTotalCount" class="text-2xl md:text-3xl font-black text-indigo-950 font-mono">0</span>
                     </div>
                     <div class="bg-emerald-50 p-4 rounded-2xl text-center border-2 border-emerald-200 shadow-sm">
-                        <span class="block text-sm md:text-base text-emerald-800 font-black">萬花筒幾何創作</span>
-                        <span id="statKaleidoArtCount" class="text-3xl md:text-4xl font-black text-emerald-950">0</span>
+                        <span class="block text-xs md:text-sm text-emerald-800 font-black">萬花筒幾何創作</span>
+                        <span id="statKaleidoArtCount" class="text-2xl md:text-3xl font-black text-emerald-950 font-mono">0</span>
+                    </div>
+                    <div class="bg-rose-50 p-4 rounded-2xl text-center border-2 border-rose-200 shadow-sm">
+                        <span class="block text-xs md:text-sm text-rose-800 font-black">2分鐘挑戰最高分</span>
+                        <span id="statBestGameScore" class="text-2xl md:text-3xl font-black text-rose-950 font-mono">0</span>
                     </div>
                     <div class="bg-amber-50 p-4 rounded-2xl text-center border-2 border-amber-200 shadow-sm">
-                        <span class="block text-sm md:text-base text-amber-800 font-black">累計同儕愛心</span>
-                        <span id="statTotalLikes" class="text-3xl md:text-4xl font-black text-amber-950">0</span>
+                        <span class="block text-xs md:text-sm text-amber-800 font-black">累計同儕愛心</span>
+                        <span id="statTotalLikes" class="text-2xl md:text-3xl font-black text-amber-950 font-mono">0</span>
                     </div>
                 </div>
 
@@ -456,29 +577,47 @@
 
     <!-- Modal 2: 課程指引彈窗 -->
     <div id="guideModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full shadow-2xl border-4 border-indigo-400 relative">
+        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border-4 border-indigo-400 relative">
             <button onclick="toggleModal('guideModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
             
             <h3 class="text-2xl font-black text-indigo-950 mb-4 flex items-center gap-2 border-b-2 border-slate-200 pb-3">
                 <i class="fa-solid fa-book-open text-amber-500"></i> 課程操作指引
             </h3>
 
-            <div class="space-y-3.5 text-slate-800 text-lg leading-relaxed font-medium">
-                <div class="p-3.5 bg-indigo-50 rounded-2xl border border-indigo-200">
-                    <strong class="text-indigo-950 font-black text-xl">活動一：觀察幾何</strong><br>
-                    點擊圖卡觀察鏡射、旋轉與平移變換，理解文化與數學的關聯。
+            <div class="space-y-4 text-slate-800 leading-relaxed font-medium">
+                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-200 space-y-1.5">
+                    <strong class="text-indigo-950 font-black text-lg block flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye text-indigo-600"></i> 一、學習目標
+                    </strong>
+                    <p class="text-sm text-slate-700 leading-relaxed">
+                        1. <strong>認知</strong>：辨識線對稱（鏡射）、旋轉對稱與平移等幾何幾何變換規則。<br>
+                        2. <strong>技能</strong>：能使用畫筆標示對稱軸與旋轉中心，並在萬花筒中創造多重對稱圖紋。<br>
+                        3. <strong>情意</strong>：探究伊斯蘭建築文化幾何與大自然有機對稱，建立跨領域美感思維。
+                    </p>
                 </div>
-                <div class="p-3.5 bg-amber-50 rounded-2xl border border-amber-200">
-                    <strong class="text-amber-950 font-black text-xl">活動二：對稱解碼</strong><br>
-                    使用水性筆繪製對稱軸與標示旋轉中心，並可挑戰半成品補齊！
+
+                <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1.5">
+                    <strong class="text-amber-950 font-black text-lg block flex items-center gap-2">
+                        <i class="fa-solid fa-tablet-screen-button text-amber-600"></i> 二、網頁操作說明
+                    </strong>
+                    <p class="text-sm text-slate-700 leading-relaxed">
+                        • <strong>活動一</strong>：點擊圖卡觀察動畫，切換鏡射、旋轉與平移效果。<br>
+                        • <strong>活動二</strong>：手繪對稱軸（金黃虛線）與點擊標示旋轉中心（紅點），支援透明方格網。<br>
+                        • <strong>活動三</strong>：萬花筒畫布即時渲染 8 重對稱，填寫 ORID 心得直接公開發布。<br>
+                        • <strong>挑戰賽</strong>：限時 2 分鐘極速判斷幾何對稱，錯誤滿 3 次即終止！<br>
+                        • <strong>成果牆</strong>：支援同儕點讚、作品放大檢視，並可一鍵下載為「PNG 圖片檔」。
+                    </p>
                 </div>
-                <div class="p-3.5 bg-emerald-50 rounded-2xl border border-emerald-200">
-                    <strong class="text-emerald-950 font-black text-xl">活動三：萬花筒與反思</strong><br>
-                    塗鴉創作出無窮萬花筒作品，並填寫 ORID 焦點思考表單。
-                </div>
-                <div class="p-3.5 bg-purple-50 rounded-2xl border border-purple-200">
-                    <strong class="text-purple-950 font-black text-xl">成果展示牆</strong><br>
-                    作品發布後直接陳列，全班同儕互相觀摩與點讚！
+
+                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-1.5">
+                    <strong class="text-emerald-950 font-black text-lg block flex items-center gap-2">
+                        <i class="fa-solid fa-comments text-emerald-600"></i> 三、課堂提問建議
+                    </strong>
+                    <p class="text-sm text-slate-700 leading-relaxed">
+                        • <strong>提問 1（規律）</strong>：「為什麼古代清真寺建築極少使用人物或動物肖像，而是大量使用幾何紋樣？」<br>
+                        • <strong>提問 2（對比）</strong>：「人造的幾何對稱與自然界鹿角蕨的對稱，最大的差別是什麼？」<br>
+                        • <strong>提問 3（應用）</strong>：「當我們在萬花筒畫布劃下一筆時，為什麼會同時出現 8 個方向的對應線條？」
+                    </p>
                 </div>
             </div>
         </div>
@@ -525,7 +664,16 @@
             act2Mode: 'tile', // 'tile', 'fern', 'half'
             act2Tool: 'axis', // 'axis', 'center'
             showGrid: true,
-            penColor: '#ef4444'
+            penColor: '#ef4444',
+            game: {
+                timer: 120, // 2 minutes
+                lives: 3,   // 3 strikes terminate
+                score: 0,
+                intervalId: null,
+                currentQIndex: 0,
+                bestScore: 0,
+                answeredCount: 0
+            }
         };
 
         // Window onload initialization
@@ -548,9 +696,9 @@
             });
         };
 
-        // 活動分頁切換
+        // 活動分頁切換 (更新支援 5 大分頁)
         function switchActivity(actNum) {
-            for (let i = 1; i <= 4; i++) {
+            for (let i = 1; i <= 5; i++) {
                 const actSection = document.getElementById(`activity${i}`);
                 const tabBtn = document.getElementById(`tabBtn${i}`);
                 
@@ -564,9 +712,9 @@
 
                 if (tabBtn) {
                     if (i === actNum) {
-                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95";
+                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95";
                     } else {
-                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-xl font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95";
+                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative";
                     }
                 }
             }
@@ -1026,6 +1174,228 @@
             isKDrawing = false;
         }
 
+        // ==================== 2分鐘極速挑戰賽遊戲模組 ====================
+        const symmetryQuestionBank = [
+            {
+                cat: '線對稱幾何',
+                q: '一個標準「正方形」，總共擁有幾條對稱軸？',
+                options: ['4 條', '2 條', '8 條', '無限多條'],
+                ans: 0,
+                hint: '水平、垂直與兩條對角線皆為對稱軸！'
+            },
+            {
+                cat: '線對稱幾何',
+                q: '「長方形」沿著哪一條線翻折可以完全重合（即對稱軸）？',
+                options: ['對邊中點的連線', '對角線', '任意斜線', '頂點到對角線的垂直線'],
+                ans: 0,
+                hint: '長方形的對角線折疊後兩側並無法完全重合！'
+            },
+            {
+                cat: '旋轉對稱',
+                q: '時鐘上的指針從 12 點走到 3 點，是以鐘面中心為旋轉中心，順時針旋轉了幾度？',
+                options: ['90 度', '60 度', '180 度', '45 度'],
+                ans: 0,
+                hint: '一整圈 360 度除以 4 等分等於 90 度！'
+            },
+            {
+                cat: '幾何對稱',
+                q: '「等腰梯形」有幾條對稱軸？',
+                options: ['1 條', '2 條', '4 條', '0 條'],
+                ans: 0,
+                hint: '連接上下兩底邊的中點直線為唯一對稱軸。'
+            },
+            {
+                cat: '變換規律',
+                q: '在伊斯蘭圖騰與花磚中，將基本幾何單元「沿著直線方向等距排列」，是哪一種數學變換？',
+                options: ['平移（Translation）', '鏡射（Reflection）', '縮放（Dilation）', '扭曲（Shear）'],
+                ans: 0,
+                hint: '沿固定方向移動且形狀大小完全不變即為平移。'
+            },
+            {
+                cat: '旋轉對稱',
+                q: '將「正六邊形」繞著中心點旋轉，最少旋轉幾度就可以和原本的圖形完全重合？',
+                options: ['60 度', '90 度', '120 度', '45 度'],
+                ans: 0,
+                hint: '360 度除以 6 個邊等於 60 度！'
+            },
+            {
+                cat: '文化與自然',
+                q: '大自然中的「鹿角蕨」葉片，展現的是哪一種美感對稱？',
+                options: ['自然有機對稱', '嚴密人造幾何對稱', '完全不對稱', '中心輻射對稱'],
+                ans: 0,
+                hint: '生物葉脈具有生命生長的多樣性與有機對稱特徵。'
+            },
+            {
+                cat: '英文字母幾何',
+                q: '下列哪一個英文字母，同時擁有「水平」與「垂直」兩條對稱軸？',
+                options: ['H', 'A', 'M', 'B'],
+                ans: 0,
+                hint: '字母 H 左右鏡射相同，上下鏡射也相同！'
+            },
+            {
+                cat: '萬花筒原理',
+                q: '我們在活動三中操作的萬花筒幾何畫板，是利用幾重對稱鏡射產生的無窮效果？',
+                options: ['8 重旋轉鏡射', '2 重對稱', '3 重對稱', '5 重對稱'],
+                ans: 0,
+                hint: '畫布由 8 個扇形切面組成的多重反射！'
+            },
+            {
+                cat: '圓形幾何',
+                q: '「圓形」總共擁有幾條對稱軸？',
+                options: ['無限多條', '360 條', '4 條', '100 條'],
+                ans: 0,
+                hint: '只要經過圓心的任何一條直線都是圓形的對稱軸！'
+            },
+            {
+                cat: '線對稱性質',
+                q: '在線對稱圖形中，連接一組「對稱點」的線段，與對稱軸會產生什麼幾何關係？',
+                options: ['垂直且被平分', '互相平行', '夾角 45 度', '完全重合'],
+                ans: 0,
+                hint: '對稱軸就是對稱點連線段的「垂直平分線」！'
+            }
+        ];
+
+        function startSymmetryGame() {
+            appState.game.timer = 120; // 2 minutes
+            appState.game.lives = 3;   // 3 hearts
+            appState.game.score = 0;
+            appState.game.answeredCount = 0;
+            appState.game.currentQIndex = 0;
+
+            document.getElementById('gameScoreText').innerText = '0';
+            updateGameTimerDisplay();
+            updateGameLivesUI();
+
+            document.getElementById('gameStartCard').classList.add('hidden');
+            document.getElementById('gameOverCard').classList.add('hidden');
+            document.getElementById('gameActiveCard').classList.remove('hidden');
+
+            loadNextGameQuestion();
+
+            if (appState.game.intervalId) clearInterval(appState.game.intervalId);
+            appState.game.intervalId = setInterval(gameTimerTick, 1000);
+        }
+
+        function gameTimerTick() {
+            appState.game.timer--;
+            updateGameTimerDisplay();
+
+            const percent = (appState.game.timer / 120) * 100;
+            const bar = document.getElementById('gameProgressBar');
+            if (bar) bar.style.width = `${percent}%`;
+
+            if (appState.game.timer <= 0) {
+                endSymmetryGame('時間到！2分鐘極速挑戰完成！', true);
+            }
+        }
+
+        function updateGameTimerDisplay() {
+            const min = Math.floor(appState.game.timer / 60).toString().padStart(2, '0');
+            const sec = (appState.game.timer % 60).toString().padStart(2, '0');
+            document.getElementById('gameTimerText').innerText = `${min}:${sec}`;
+        }
+
+        function updateGameLivesUI() {
+            const box = document.getElementById('gameLivesBox');
+            let html = '';
+            for (let i = 0; i < appState.game.lives; i++) {
+                html += '<i class="fa-solid fa-heart text-rose-500 animate-pulse"></i>';
+            }
+            for (let i = appState.game.lives; i < 3; i++) {
+                html += '<i class="fa-regular fa-heart text-slate-300"></i>';
+            }
+            box.innerHTML = html;
+        }
+
+        function loadNextGameQuestion() {
+            const qData = symmetryQuestionBank[Math.floor(Math.random() * symmetryQuestionBank.length)];
+            appState.game.currentQ = qData;
+            appState.game.currentQIndex++;
+
+            document.getElementById('gameQCategory').innerText = qData.cat;
+            document.getElementById('gameQIndex').innerText = `第 ${appState.game.currentQIndex} 題`;
+            document.getElementById('gameQuestionText').innerText = qData.q;
+
+            const grid = document.getElementById('gameOptionsGrid');
+            grid.innerHTML = '';
+
+            const indices = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
+            indices.forEach(idx => {
+                const btn = document.createElement('button');
+                btn.className = 'w-full p-4 rounded-2xl bg-white border-2 border-slate-300 hover:border-indigo-600 hover:bg-indigo-50 active:scale-95 text-left font-black text-slate-800 text-lg transition shadow-sm';
+                btn.innerText = qData.options[idx];
+                btn.onclick = () => checkGameAnswer(idx === qData.ans, btn, qData);
+                grid.appendChild(btn);
+            });
+        }
+
+        function checkGameAnswer(isCorrect, btnEl, qData) {
+            document.querySelectorAll('#gameOptionsGrid button').forEach(b => b.disabled = true);
+            appState.game.answeredCount++;
+
+            if (isCorrect) {
+                btnEl.className = 'w-full p-4 rounded-2xl bg-emerald-500 border-2 border-emerald-600 text-white font-black text-lg transition shadow-md';
+                appState.game.score += 20;
+                document.getElementById('gameScoreText').innerText = appState.game.score;
+                showToast('答對了！+20 分');
+                setTimeout(() => {
+                    loadNextGameQuestion();
+                }, 400);
+            } else {
+                btnEl.className = 'w-full p-4 rounded-2xl bg-rose-500 border-2 border-rose-600 text-white font-black text-lg transition shadow-md';
+                appState.game.lives--;
+                updateGameLivesUI();
+                showToast(`答錯了！扣除 1 點生命值（${qData.hint}）`);
+
+                if (appState.game.lives <= 0) {
+                    setTimeout(() => {
+                        endSymmetryGame('答題錯誤累計達三次，挑戰終止！', false);
+                    }, 500);
+                } else {
+                    setTimeout(() => {
+                        loadNextGameQuestion();
+                    }, 500);
+                }
+            }
+        }
+
+        function endSymmetryGame(message, isCompleted) {
+            clearInterval(appState.game.intervalId);
+
+            document.getElementById('gameActiveCard').classList.add('hidden');
+            document.getElementById('gameOverCard').classList.remove('hidden');
+
+            const iconEl = document.getElementById('gameOverIcon');
+            const titleEl = document.getElementById('gameOverTitle');
+            const msgEl = document.getElementById('gameOverMsg');
+
+            document.getElementById('finalScoreVal').innerText = appState.game.score;
+            document.getElementById('finalQuestionsAnswered').innerText = appState.game.answeredCount;
+
+            let badge = '幾何見習偵探';
+            if (appState.game.score >= 140) badge = '👑 幾何幾何傳奇大師';
+            else if (appState.game.score >= 100) badge = '🌟 對稱解碼神探';
+            else if (appState.game.score >= 60) badge = '🎯 空間幾何高手';
+            document.getElementById('finalBadgeVal').innerText = badge;
+
+            if (appState.game.score > appState.game.bestScore) {
+                appState.game.bestScore = appState.game.score;
+                document.getElementById('statBestGameScore').innerText = appState.game.bestScore;
+            }
+
+            if (isCompleted) {
+                iconEl.className = 'w-20 h-20 bg-amber-100 text-amber-500 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md';
+                iconEl.innerHTML = '<i class="fa-solid fa-trophy"></i>';
+                titleEl.innerText = '挑戰成功！';
+                msgEl.innerText = message;
+            } else {
+                iconEl.className = 'w-20 h-20 bg-rose-100 text-rose-500 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md';
+                iconEl.innerHTML = '<i class="fa-solid fa-heart-crack"></i>';
+                titleEl.innerText = '挑戰終止';
+                msgEl.innerText = message;
+            }
+        }
+
         // 送出 ORID 與萬花筒作品至網頁成果展示牆
         function submitORIDAndShowcase() {
             const groupName = document.getElementById('groupName').value.trim() || '未命名小組';
@@ -1068,8 +1438,8 @@
 
             showToast('作品已成功發布至成果展示牆！');
 
-            // 自動切換到成果展示牆分頁
-            switchActivity(4);
+            // 自動切換到成果展示牆分頁 (第 5 分頁)
+            switchActivity(5);
         }
 
         // 渲染成果展示牆
@@ -1174,29 +1544,79 @@
             showToast('展示牆所有作品已清空完畢！');
         }
 
-        // 匯出成果為 CSV 報表
-        function exportShowcaseCSV() {
+        // 匯出成果為圖片檔 (PNG)
+        function exportShowcasePNG() {
             if (appState.showcaseSubmissions.length === 0) {
-                showToast('尚無任何學習歷程紀錄可匯出！');
+                showToast('尚無任何學習成果，請先到活動三完成並發布作品！');
                 return;
             }
 
-            let csvContent = "\uFEFF序號,組別,學生姓名,發布時間,ORID_客觀觀察[O],ORID_感性反應[R],ORID_詮釋理解[I],ORID_決定行動[D],獲得愛心數\n";
+            const exportElement = document.getElementById('showcaseExportArea');
+            showToast('正在生成全景高畫質成果圖檔，請稍候...');
 
-            appState.showcaseSubmissions.forEach((item, idx) => {
-                const clean = str => `"${(str || '').replace(/"/g, '""')}"`;
-                csvContent += `${idx + 1},${clean(item.group)},${clean(item.student)},${clean(item.time)},${clean(item.o)},${clean(item.r)},${clean(item.i)},${clean(item.d)},${item.likes}\n`;
+            if (typeof html2canvas !== 'undefined') {
+                html2canvas(exportElement, {
+                    backgroundColor: '#ffffff',
+                    scale: 2,
+                    useCORS: true,
+                    logging: false
+                }).then(canvas => {
+                    const link = document.createElement('a');
+                    link.download = `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.png`;
+                    link.href = canvas.toDataURL('image/png');
+                    link.click();
+                    showToast('已成功匯出成果圖檔 (PNG)！');
+                }).catch(err => {
+                    console.error('html2canvas export error:', err);
+                    fallbackExportPNG();
+                });
+            } else {
+                fallbackExportPNG();
+            }
+        }
+
+        // 備用原生 Canvas 繪製成果圖檔
+        function fallbackExportPNG() {
+            const tempCanvas = document.createElement('canvas');
+            tempCanvas.width = 1200;
+            tempCanvas.height = 800;
+            const tCtx = tempCanvas.getContext('2d');
+
+            tCtx.fillStyle = '#f8fafc';
+            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
+
+            tCtx.fillStyle = '#1e1b4b';
+            tCtx.font = 'bold 36px sans-serif';
+            tCtx.fillText('規律的視覺美感 - 全班學習歷程報告', 60, 80);
+
+            tCtx.font = '20px sans-serif';
+            tCtx.fillStyle = '#64748b';
+            tCtx.fillText(`匯出時間：${new Date().toLocaleString()} | 發布總數：${appState.showcaseSubmissions.length} 份`, 60, 125);
+
+            let y = 180;
+            appState.showcaseSubmissions.slice(0, 4).forEach((item, idx) => {
+                tCtx.fillStyle = '#ffffff';
+                tCtx.fillRect(60, y, 1080, 120);
+                tCtx.strokeStyle = '#cbd5e1';
+                tCtx.strokeRect(60, y, 1080, 120);
+
+                tCtx.fillStyle = '#312e81';
+                tCtx.font = 'bold 22px sans-serif';
+                tCtx.fillText(`${idx + 1}. 組別：${item.group} (${item.student}) - 愛心：${item.likes}`, 80, y + 40);
+
+                tCtx.fillStyle = '#475569';
+                tCtx.font = '16px sans-serif';
+                tCtx.fillText(`[O] ${item.o.slice(0, 45)}...`, 80, y + 70);
+                tCtx.fillText(`[D] ${item.d.slice(0, 45)}...`, 80, y + 95);
+
+                y += 140;
             });
 
-            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
             const link = document.createElement('a');
-            link.setAttribute('href', url);
-            link.setAttribute('download', `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.csv`);
-            document.body.appendChild(link);
+            link.download = `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.png`;
+            link.href = tempCanvas.toDataURL('image/png');
             link.click();
-            document.body.removeChild(link);
-            showToast('已成功匯出全班成果 CSV 試算表！');
+            showToast('已由備用引擎匯出成果圖檔 (PNG)！');
         }
 
         function escapeHTML(str) {

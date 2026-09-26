@@ -1,2003 +1,1893 @@
 <!DOCTYPE html>
 <html lang="zh-TW">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>規律的視覺美感 - 線上互動學習系統</title>
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- QRCode.js Library -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-    <!-- html2canvas Library for Image Export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
-    
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@500;700;900&display=swap');
-        
-        body {
-            font-family: 'Noto Sans TC', system-ui, -apple-system, sans-serif;
-            touch-action: manipulation;
-            user-select: none;
-            -webkit-user-select: none;
-            background-color: #f1f5f9;
-        }
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>規律的視覺美感(一) - 數感實驗室</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Font Awesome CDN -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <!-- QRCode.js CDN for dynamic QR code -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+  <!-- Google Fonts: Noto Sans TC -->
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;600;700;900&family=Zen+Maru+Gothic:wght@700&display=swap" rel="stylesheet">
 
-        /* Canvas interaction rules for smooth touch stylus support on iPads */
-        canvas {
-            touch-action: none;
-        }
-
-        /* Animated pulse for active touch buttons */
-        .touch-bounce:active {
-            transform: scale(0.95);
-        }
-
-        /* Custom scrollbar styling */
-        ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #f1f5f9;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 8px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #94a3b8;
-        }
-
-        /* Dynamic keyframes for geometric transformations in Activity 1 */
-        @keyframes spinSlow {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
-        .animate-spin-slow {
-            animation: spinSlow 6s linear infinite;
-        }
-
-        @keyframes mirrorFlip {
-            0%, 100% { transform: scaleX(1); }
-            50% { transform: scaleX(-1); }
-        }
-        .animate-flip-slow {
-            animation: mirrorFlip 3.5s ease-in-out infinite;
-        }
-
-        @keyframes slideTranslate {
-            0%, 100% { transform: translate(0, 0); }
-            50% { transform: translate(30px, -20px); }
-        }
-        .animate-slide-slow {
-            animation: slideTranslate 3s ease-in-out infinite;
-        }
-
-        /* Animation paused utility */
-        .animation-paused {
-            animation-play-state: paused !important;
-        }
-
-        /* Question card animation */
-        @keyframes popIn {
-            0% { transform: scale(0.96); opacity: 0; }
-            100% { transform: scale(1); opacity: 1; }
-        }
-        .animate-pop-in {
-            animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-        }
-    </style>
+  <style>
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      touch-action: manipulation;
+      -webkit-tap-highlight-color: transparent;
+      user-select: none;
+    }
+    .font-brand {
+      font-family: 'Zen Maru Gothic', 'Noto Sans TC', sans-serif;
+    }
+    /* Select option high contrast fix for iPadOS */
+    select option {
+      background-color: #ffffff;
+      color: #1e293b;
+      font-weight: 700;
+    }
+    /* Tooltip styling */
+    .tooltip-wrapper {
+      position: relative;
+    }
+    .tooltip-wrapper .tooltip-text {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+      position: absolute;
+      top: 115%;
+      left: 50%;
+      transform: translateX(-50%);
+      background-color: #1e293b;
+      color: #ffffff;
+      text-align: center;
+      padding: 6px 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.3);
+      z-index: 100;
+      pointer-events: none;
+    }
+    .tooltip-wrapper:hover .tooltip-text,
+    .tooltip-wrapper:focus .tooltip-text {
+      visibility: visible;
+      opacity: 1;
+    }
+    /* Custom scrollbars */
+    ::-webkit-scrollbar {
+      width: 8px;
+      height: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #f1f5f9;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #94a3b8;
+      border-radius: 4px;
+    }
+    /* Pattern canvas overlay */
+    .grid-overlay {
+      background-size: 24px 24px;
+      background-image: 
+        linear-gradient(to right, rgba(99, 102, 241, 0.25) 1px, transparent 1px),
+        linear-gradient(to bottom, rgba(99, 102, 241, 0.25) 1px, transparent 1px);
+    }
+    /* Touch friendly active feedback */
+    .btn-touch:active {
+      transform: scale(0.97);
+    }
+  </style>
 </head>
-<body class="bg-slate-100 text-slate-800 flex flex-col min-h-screen overflow-x-hidden">
+<body class="bg-slate-100 text-slate-800 min-h-screen flex flex-col antialiased">
 
-    <!-- 頂部導覽列 Header (極簡介面，純圖示無文字標籤，順序嚴格固定) -->
-    <header class="bg-indigo-700 text-white shadow-lg sticky top-0 z-30 px-4 py-3 flex justify-between items-center border-b-4 border-indigo-900">
-        <div class="flex items-center space-x-3">
-            <span class="bg-amber-400 text-indigo-950 font-black text-xl md:text-2xl px-3.5 py-1.5 rounded-2xl shadow-md border-2 border-amber-300 flex items-center gap-2">
-                <i class="fa-solid fa-shapes"></i> 規律的視覺美感
-            </span>
-            <!-- 版本控制編號：升級至 v1.5.0，大幅擴充題庫與功能檢核 -->
-            <span id="versionTag" class="text-xs md:text-sm bg-indigo-900/90 text-amber-300 px-3 py-1 rounded-xl font-mono font-bold border border-indigo-400/50 shadow-inner">
-                v1.5.0
-            </span>
+  <!-- 頂部固定列：標題、版本號、分頁切換鍵、純圖示工具列 (QR -> Maximize -> Book) -->
+  <header class="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b-2 border-slate-200 shadow-sm px-3 md:px-6 py-2.5">
+    <div class="max-w-7xl mx-auto flex items-center justify-between gap-2">
+      
+      <!-- 主標題與版本號 -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        <div class="w-10 h-10 md:w-11 md:h-11 rounded-xl bg-gradient-to-tr from-amber-500 to-indigo-600 flex items-center justify-center text-white text-xl shadow-md">
+          <i class="fa-solid fa-shapes"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-1.5">
+            <h1 class="text-xl md:text-2xl font-black text-slate-800 tracking-tight font-brand">規律的視覺美感(一)</h1>
+            <span class="bg-amber-100 text-amber-800 text-xs md:text-sm font-bold px-2 py-0.5 rounded-full border border-amber-300">v1.1.1</span>
+          </div>
+          <p class="text-xs text-slate-500 hidden sm:block">伊斯蘭幾何紋樣 × 自然有機對稱探索</p>
+        </div>
+      </div>
+
+      <!-- 分頁切換鍵（固定在主標題右側位置，不隨畫面滾動） -->
+      <nav class="flex items-center gap-1 sm:gap-2 bg-slate-200/80 p-1.5 rounded-2xl">
+        <button id="tab-btn-decode" onclick="switchTab('decode')" class="tab-btn px-3 md:px-5 py-2 rounded-xl text-base md:text-lg font-black transition-all flex items-center gap-2 bg-white text-indigo-700 shadow-sm">
+          <i class="fa-solid fa-compass-drafting"></i>
+          <span class="hidden sm:inline">幾何解碼台</span>
+        </button>
+        <button id="tab-btn-game" onclick="switchTab('game')" class="tab-btn px-3 md:px-5 py-2 rounded-xl text-base md:text-lg font-black transition-all flex items-center gap-2 text-slate-600 hover:text-indigo-600">
+          <i class="fa-solid fa-gamepad"></i>
+          <span class="hidden sm:inline">2分鐘挑戰賽</span>
+        </button>
+        <button id="tab-btn-orid" onclick="switchTab('orid')" class="tab-btn px-3 md:px-5 py-2 rounded-xl text-base md:text-lg font-black transition-all flex items-center gap-2 text-slate-600 hover:text-indigo-600">
+          <i class="fa-solid fa-award"></i>
+          <span class="hidden sm:inline">ORID成果展</span>
+        </button>
+      </nav>
+
+      <!-- 純圖示功能按鈕（無任何文字標籤，Hover/Touch 提示標籤） -->
+      <!-- 嚴格順序：① QR Code 掃碼連結 [QR Icon] ➔ ② 全螢幕 toggle [Maximize Icon] ➔ ③ 課程指引 [Book Icon] -->
+      <div class="flex items-center gap-2 flex-shrink-0">
+        
+        <!-- ① QR Code 掃碼連結 -->
+        <div class="tooltip-wrapper">
+          <button id="btn-qr" onclick="openQrModal()" class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700 flex items-center justify-center text-xl transition-all shadow-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" aria-label="QR Code 掃碼分享">
+            <i class="fa-solid fa-qrcode"></i>
+          </button>
+          <div class="tooltip-text">
+            <span>QR Code 掃碼連結</span>
+          </div>
         </div>
 
-        <!-- 頂部功能圖示鍵（依序為：音效開關 -> ① QR Code -> ② 全螢幕 -> ③ 課程指引） -->
-        <div class="flex items-center space-x-2 md:space-x-3">
-            <!-- 音效開關切換鍵 -->
-            <button id="soundToggleBtn" onclick="toggleMuteAudio()" aria-label="切換音效" title="開啟/關閉音效" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
-                <i id="soundIcon" class="fa-solid fa-volume-high"></i>
-            </button>
-
-            <!-- ① QR Code 掃碼連結鍵 [QR Icon] -->
-            <button onclick="toggleModal('qrModal')" aria-label="QR Code" title="掃描 QR Code 網址" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
-                <i class="fa-solid fa-qrcode"></i>
-            </button>
-
-            <!-- ② 全螢幕 toggle [Maximize Icon] -->
-            <button onclick="toggleFullscreen()" aria-label="Toggle Fullscreen" title="切換全螢幕模式" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
-                <i id="fullscreenIcon" class="fa-solid fa-expand"></i>
-            </button>
-
-            <!-- ③ 課程指引 [Book Icon] -->
-            <button onclick="toggleModal('guideModal')" aria-label="Course Guide" title="觀看課程指引" class="w-12 h-12 md:w-14 md:h-14 bg-indigo-600 hover:bg-amber-400 hover:text-indigo-950 active:scale-90 rounded-2xl flex items-center justify-center text-xl md:text-2xl transition-all duration-200 shadow-md border-2 border-indigo-400">
-                <i class="fa-solid fa-book-open"></i>
-            </button>
-        </div>
-    </header>
-
-    <!-- 主要內容區 -->
-    <main class="flex-grow max-w-7xl w-full mx-auto p-3 md:p-6 flex flex-col space-y-6">
-
-        <!-- 活動頁籤導覽 (5 大分頁) -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2 md:gap-3 bg-white p-2 rounded-3xl shadow-md border-2 border-slate-200">
-            <button id="tabBtn1" onclick="switchActivity(1)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95">
-                <i class="fa-solid fa-compass text-lg md:text-xl"></i>
-                <span>活動一：課程導入</span>
-            </button>
-            <button id="tabBtn2" onclick="switchActivity(2)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-pen-ruler text-lg md:text-xl"></i>
-                <span>活動二：對稱解碼</span>
-            </button>
-            <button id="tabBtn3" onclick="switchActivity(3)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95">
-                <i class="fa-solid fa-wand-magic-sparkles text-lg md:text-xl"></i>
-                <span>活動三：萬花筒反思</span>
-            </button>
-            <button id="tabBtn4" onclick="switchActivity(4)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
-                <i class="fa-solid fa-gamepad text-lg md:text-xl text-rose-500"></i>
-                <span>挑戰：2分鐘解密</span>
-                <span class="bg-rose-500 text-white text-[10px] px-1.5 py-0.5 rounded-full font-black animate-pulse">30+題</span>
-            </button>
-            <button id="tabBtn5" onclick="switchActivity(5)" class="py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative">
-                <i class="fa-solid fa-gem text-lg md:text-xl text-amber-500"></i>
-                <span>成果展示牆</span>
-                <span id="showcaseCountBadge" class="bg-amber-400 text-indigo-950 text-xs px-2 py-0.5 rounded-full font-black ml-1">0</span>
-            </button>
+        <!-- ② 全螢幕 toggle -->
+        <div class="tooltip-wrapper">
+          <button id="btn-fullscreen" onclick="toggleFullScreen()" class="w-12 h-12 rounded-xl bg-slate-100 hover:bg-indigo-100 text-slate-700 hover:text-indigo-700 flex items-center justify-center text-xl transition-all shadow-sm border border-slate-200 focus:outline-none focus:ring-2 focus:ring-indigo-400" aria-label="切換全螢幕模式">
+            <i class="fa-solid fa-expand" id="fullscreen-icon"></i>
+          </button>
+          <div class="tooltip-text">
+            <span id="fullscreen-tip">切換全螢幕顯示</span>
+          </div>
         </div>
 
-        <!-- ==================== 活動一：課程導入 ==================== -->
-        <section id="activity1" class="space-y-6">
-            <div class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
-                <div class="flex items-center gap-3 border-b-4 border-amber-400 pb-3 mb-6">
-                    <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">1</div>
-                    <h2 class="text-2xl md:text-3xl font-black text-indigo-950">幾何紋樣與數學規則探究</h2>
-                </div>
-                
-                <p class="text-xl md:text-2xl text-slate-700 leading-relaxed mb-6 font-bold">
-                    請輕觸下方卡片，觀察「鏡射」、「旋轉」與「平移」背後的幾何數學規律（點擊可切換動畫暫停與播放）：
-                </p>
-
-                <!-- 互動圖卡展台 (修正個別動畫控制) -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- 卡片 1: 鏡射 (Reflection) -->
-                    <div onclick="toggleSingleAnimation('mirrorDemo', 'mirrorStatus')" class="cursor-pointer bg-indigo-50/80 hover:bg-indigo-100 rounded-3xl p-5 border-2 border-indigo-200 flex flex-col items-center text-center space-y-4 hover:shadow-xl transition-all duration-300 active:scale-98">
-                        <div class="w-full h-52 bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner border border-indigo-100 relative overflow-hidden">
-                            <svg viewBox="0 0 100 100" class="w-40 h-40">
-                                <g id="mirrorDemo" class="animate-flip-slow origin-center" style="transform-origin: 50px 50px;">
-                                    <path d="M 30 30 C 45 10, 45 90, 30 70 Z" fill="#6366f1"/>
-                                </g>
-                                <line x1="50" y1="5" x2="50" y2="95" stroke="#f59e0b" stroke-width="4" stroke-dasharray="4"/>
-                                <path d="M 70 30 C 55 10, 55 90, 70 70 Z" fill="#818cf8" opacity="0.5"/>
-                            </svg>
-                            <span id="mirrorStatus" class="absolute bottom-2 right-2 bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊暫停/播放</span>
-                        </div>
-                        <span class="bg-indigo-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">鏡射（Reflection）</span>
-                        <p class="text-lg text-slate-700 font-medium">沿著對稱軸翻轉，左右完全重合對稱。</p>
-                    </div>
-
-                    <!-- 卡片 2: 旋轉 (Rotation) -->
-                    <div onclick="toggleSingleAnimation('rotateDemo', 'rotateStatus')" class="cursor-pointer bg-emerald-50/80 hover:bg-emerald-100 rounded-3xl p-5 border-2 border-emerald-200 flex flex-col items-center text-center space-y-4 hover:shadow-xl transition-all duration-300 active:scale-98">
-                        <div class="w-full h-52 bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner border border-emerald-100 relative">
-                            <svg viewBox="0 0 100 100" class="w-40 h-40">
-                                <g id="rotateDemo" class="animate-spin-slow origin-center" style="transform-origin: 50px 50px;">
-                                    <polygon points="50,15 62,38 50,48 38,38" fill="#10b981"/>
-                                    <polygon points="85,50 62,62 52,50 62,38" fill="#10b981"/>
-                                    <polygon points="50,85 38,62 50,52 62,62" fill="#10b981"/>
-                                    <polygon points="15,50 38,38 48,50 38,62" fill="#10b981"/>
-                                </g>
-                                <circle cx="50" cy="50" r="7" fill="#ef4444" stroke="#ffffff" stroke-width="2"/>
-                            </svg>
-                            <span id="rotateStatus" class="absolute bottom-2 right-2 bg-emerald-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊暫停/播放</span>
-                        </div>
-                        <span class="bg-emerald-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">旋轉（Rotation）</span>
-                        <p class="text-lg text-slate-700 font-medium">繞著中心點旋轉固定角度完全重合。</p>
-                    </div>
-
-                    <!-- 卡片 3: 平移 (Translation) -->
-                    <div onclick="toggleSingleAnimation('translateDemo', 'translateStatus')" class="cursor-pointer bg-amber-50/80 hover:bg-amber-100 rounded-3xl p-5 border-2 border-amber-200 flex flex-col items-center text-center space-y-4 hover:shadow-xl transition-all duration-300 active:scale-98">
-                        <div class="w-full h-52 bg-white rounded-2xl flex items-center justify-center p-2 shadow-inner border border-amber-100 relative overflow-hidden">
-                            <svg viewBox="0 0 100 100" class="w-40 h-40">
-                                <g id="translateDemo" class="animate-slide-slow">
-                                    <circle cx="28" cy="28" r="14" fill="none" stroke="#f59e0b" stroke-width="4"/>
-                                    <circle cx="72" cy="28" r="14" fill="none" stroke="#f59e0b" stroke-width="4"/>
-                                    <circle cx="28" cy="72" r="14" fill="none" stroke="#f59e0b" stroke-width="4"/>
-                                    <circle cx="72" cy="72" r="14" fill="none" stroke="#f59e0b" stroke-width="4"/>
-                                </g>
-                                <path d="M 28 28 L 72 28 M 28 28 L 28 72" stroke="#6366f1" stroke-width="2" stroke-dasharray="3"/>
-                            </svg>
-                            <span id="translateStatus" class="absolute bottom-2 right-2 bg-amber-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold">點擊暫停/播放</span>
-                        </div>
-                        <span class="bg-amber-600 text-white font-black text-xl px-5 py-1.5 rounded-full shadow">平移（Translation）</span>
-                        <p class="text-lg text-slate-700 font-medium">沿固定方向等距平移排列重複。</p>
-                    </div>
-                </div>
-
-                <!-- 文化小知識提問區 -->
-                <div class="mt-8 bg-gradient-to-r from-indigo-900 to-indigo-950 text-white p-6 rounded-3xl border-2 border-indigo-700 shadow-md">
-                    <h3 class="text-xl md:text-2xl font-black mb-3 flex items-center gap-3 text-amber-400">
-                        <i class="fa-solid fa-lightbulb text-2xl"></i> 文化與數學探索：為何古代建築愛用幾何紋樣？
-                    </h3>
-                    <p class="text-lg md:text-xl text-indigo-100 leading-relaxed font-medium">
-                        古代清真寺與殿堂建築極為重視「秩序」、「和諧」與「無窮」的寓意。幾何紋樣沒有起點也沒有終點，象徵著數學規律的完美與宇宙秩序之美！
-                    </p>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 活動二：核心發展（Canvas對稱解碼） ==================== -->
-        <section id="activity2" class="space-y-6 hidden">
-            <div class="bg-white p-4 md:p-6 rounded-3xl shadow-lg border-2 border-indigo-100">
-                <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 border-b-4 border-amber-400 pb-4 mb-4">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">2</div>
-                        <h2 class="text-2xl md:text-3xl font-black text-indigo-950">幾何對稱解碼畫板</h2>
-                    </div>
-                    
-                    <!-- 模式切換鈕 (iPad 友善超大按鈕) -->
-                    <div class="flex flex-wrap gap-2">
-                        <button id="modeTileBtn" onclick="setActivity2Mode('tile')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition">
-                            <i class="fa-solid fa-shapes"></i> 伊斯蘭紋樣
-                        </button>
-                        <button id="modeFernBtn" onclick="setActivity2Mode('fern')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
-                            <i class="fa-solid fa-leaf"></i> 自然鹿角蕨
-                        </button>
-                        <button id="modeHalfBtn" onclick="setActivity2Mode('half')" class="flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition">
-                            <i class="fa-solid fa-puzzle-piece"></i> 半成品補齊挑戰
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 工具選擇區域 (透明網格、繪製對稱軸/旋轉中心、撤銷/清空) -->
-                <div class="flex flex-wrap items-center justify-between gap-3 bg-slate-100 p-3.5 rounded-2xl mb-4 border border-slate-200">
-                    <div class="flex flex-wrap items-center gap-2 md:gap-3">
-                        <span class="text-lg font-black text-slate-700">解碼工具：</span>
-                        <button id="toolAxisBtn" onclick="setDrawTool('axis')" class="px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition">
-                            <i class="fa-solid fa-slash"></i> 劃出對稱軸 (金色虛線)
-                        </button>
-                        <button id="toolCenterBtn" onclick="setDrawTool('center')" class="px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition">
-                            <i class="fa-solid fa-circle-dot text-rose-500"></i> 標示旋轉中心 (紅圓點)
-                        </button>
-                    </div>
-
-                    <div class="flex items-center gap-2">
-                        <button onclick="toggleGridOverlay()" class="px-4 py-2.5 bg-indigo-100 text-indigo-900 rounded-xl font-bold text-base hover:bg-indigo-200 active:scale-95 transition">
-                            <i class="fa-solid fa-border-all"></i> <span id="gridToggleText">隱藏透明網格</span>
-                        </button>
-                        <button onclick="undoCanvas2()" class="px-4 py-2.5 bg-slate-200 text-slate-800 rounded-xl font-bold text-base hover:bg-slate-300 active:scale-95 transition">
-                            <i class="fa-solid fa-rotate-left"></i> 復原
-                        </button>
-                        <button onclick="clearCanvas2()" class="px-4 py-2.5 bg-rose-500 text-white rounded-xl font-bold text-base hover:bg-rose-600 active:scale-95 transition shadow">
-                            <i class="fa-solid fa-trash-can"></i> 重繪
-                        </button>
-                    </div>
-                </div>
-
-                <!-- Canvas 工作畫板區 -->
-                <div class="relative w-full h-[450px] md:h-[520px] bg-slate-900 rounded-3xl overflow-hidden border-4 border-indigo-200 shadow-inner flex items-center justify-center">
-                    <canvas id="canvas2" class="w-full h-full cursor-crosshair"></canvas>
-                </div>
-
-                <!-- 任務提示文字 -->
-                <div id="act2Instructions" class="mt-4 p-4 bg-amber-50 rounded-2xl border-2 border-amber-200 text-lg md:text-xl font-bold text-amber-950 flex items-center gap-3 shadow-sm">
-                    <i class="fa-solid fa-bullseye text-2xl text-amber-600"></i>
-                    <span>任務提示：請使用對稱軸工具劃出圖案的對稱軸，並標示旋轉中心點！</span>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 活動三：萬花筒與反思（創作與ORID） ==================== -->
-        <section id="activity3" class="space-y-6 hidden">
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                
-                <!-- 左側：萬花筒互動 Canvas -->
-                <div class="bg-white p-5 rounded-3xl shadow-lg border-2 border-indigo-100 flex flex-col justify-between">
-                    <div>
-                        <div class="flex items-center gap-3 border-b-4 border-amber-400 pb-3 mb-4">
-                            <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">3</div>
-                            <h2 class="text-2xl font-black text-indigo-950">萬花筒無窮幾何畫板</h2>
-                        </div>
-                        <p class="text-lg text-slate-600 mb-4 font-bold">用手指或繪圖筆塗鴉，即時體驗萬花筒產生的 8 重對稱美感！</p>
-                    </div>
-
-                    <!-- 萬花筒控制調色盤與筆刷粗細 -->
-                    <div class="flex flex-wrap items-center justify-between gap-3 mb-3 bg-slate-100 p-3 rounded-2xl border border-slate-200">
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-slate-700 text-base">色彩：</span>
-                            <button onclick="setPenColor('#ef4444')" class="w-8 h-8 rounded-full bg-red-500 border-2 border-white shadow hover:scale-110 active:scale-95 transition"></button>
-                            <button onclick="setPenColor('#3b82f6')" class="w-8 h-8 rounded-full bg-blue-500 border-2 border-white shadow hover:scale-110 active:scale-95 transition"></button>
-                            <button onclick="setPenColor('#10b981')" class="w-8 h-8 rounded-full bg-emerald-500 border-2 border-white shadow hover:scale-110 active:scale-95 transition"></button>
-                            <button onclick="setPenColor('#f59e0b')" class="w-8 h-8 rounded-full bg-amber-500 border-2 border-white shadow hover:scale-110 active:scale-95 transition"></button>
-                            <button onclick="setPenColor('#a855f7')" class="w-8 h-8 rounded-full bg-purple-500 border-2 border-white shadow hover:scale-110 active:scale-95 transition"></button>
-                            <button onclick="setPenColor('#ffffff')" class="w-8 h-8 rounded-full bg-white border-2 border-slate-400 shadow hover:scale-110 active:scale-95 transition"></button>
-                        </div>
-                        
-                        <div class="flex items-center gap-2">
-                            <span class="font-black text-slate-700 text-sm">粗細：</span>
-                            <button onclick="setPenWidth(3)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-200">細</button>
-                            <button onclick="setPenWidth(6)" class="px-2.5 py-1 bg-indigo-600 text-white rounded-lg text-xs font-bold hover:bg-indigo-700">中</button>
-                            <button onclick="setPenWidth(12)" class="px-2.5 py-1 bg-white border border-slate-300 rounded-lg text-xs font-bold hover:bg-slate-200">粗</button>
-                            <button onclick="clearKaleidoscope()" class="ml-2 px-3 py-1 bg-rose-500 text-white rounded-xl font-bold text-sm hover:bg-rose-600 active:scale-95 transition">
-                                清空
-                            </button>
-                        </div>
-                    </div>
-
-                    <div class="relative w-full h-[380px] md:h-[420px] bg-slate-950 rounded-3xl overflow-hidden border-4 border-indigo-200 shadow-inner">
-                        <canvas id="kaleidoscopeCanvas" class="w-full h-full cursor-crosshair"></canvas>
-                    </div>
-                </div>
-
-                <!-- 右側：ORID 焦點討論法表單 (所有欄位保持完全清空) -->
-                <div class="bg-white p-5 md:p-6 rounded-3xl shadow-lg border-2 border-indigo-100 flex flex-col justify-between">
-                    <div>
-                        <div class="border-b-4 border-indigo-600 pb-3 mb-4 flex items-center justify-between">
-                            <h2 class="text-2xl font-black text-indigo-950 flex items-center gap-2">
-                                <i class="fa-solid fa-comments text-indigo-600"></i> ORID 學習思考回顧
-                            </h2>
-                            <span class="text-sm bg-indigo-100 text-indigo-900 font-bold px-3 py-1 rounded-full border border-indigo-200">公開發布至成果牆</span>
-                        </div>
-
-                        <!-- 預設數據完全歸零與清空 -->
-                        <form id="oridForm" class="space-y-3">
-                            <!-- 組別/姓名 -->
-                            <div class="grid grid-cols-2 gap-2">
-                                <div>
-                                    <label class="block text-base font-black text-indigo-950 mb-1">班級 / 組別：<span class="text-rose-500">*</span></label>
-                                    <input type="text" id="groupName" placeholder="如：五年一班第3組" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition">
-                                </div>
-                                <div>
-                                    <label class="block text-base font-black text-indigo-950 mb-1">學生姓名：<span class="text-rose-500">*</span></label>
-                                    <input type="text" id="studentName" placeholder="如：王小明" class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition">
-                                </div>
-                            </div>
-
-                            <!-- Objective -->
-                            <div>
-                                <label class="block text-base font-black text-indigo-950 mb-1">
-                                    [O] 觀察：今天觀察到的幾何紋樣中，有哪些重複出現的形狀？<span class="text-rose-500">*</span>
-                                </label>
-                                <textarea id="oridO" rows="2" placeholder="請描述看見的線條、正方形、花瓣或幾何多邊形..." class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
-                            </div>
-
-                            <!-- Reflective -->
-                            <div>
-                                <label class="block text-base font-black text-indigo-950 mb-1">
-                                    [R] 感受：當萬花筒轉動產生無窮規律時，你有什麼感覺？<span class="text-rose-500">*</span>
-                                </label>
-                                <textarea id="oridR" rows="2" placeholder="請分享視覺上感受到的驚奇、對稱、和諧感..." class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
-                            </div>
-
-                            <!-- Interpretive -->
-                            <div>
-                                <label class="block text-base font-black text-indigo-950 mb-1">
-                                    [I] 理解：為什麼古代建築（如清真寺）常使用數學規律來裝飾？<span class="text-rose-500">*</span>
-                                </label>
-                                <textarea id="oridI" rows="2" placeholder="請說明幾何規律傳達的秩序感、無窮延伸或宗教文化意義..." class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
-                            </div>
-
-                            <!-- Decisional -->
-                            <div>
-                                <label class="block text-base font-black text-indigo-950 mb-1">
-                                    [D] 選擇：下次設計圖案時，你會選擇哪種對稱方式來展現美感？<span class="text-rose-500">*</span>
-                                </label>
-                                <textarea id="oridD" rows="2" placeholder="如：我想使用 60 度旋轉鏡射來設計校徽..." class="w-full p-2.5 border-2 border-slate-300 rounded-xl text-base focus:border-indigo-600 focus:outline-none transition"></textarea>
-                            </div>
-                        </form>
-                    </div>
-
-                    <button type="button" onclick="submitORIDAndShowcase()" class="mt-4 w-full py-4 bg-emerald-600 hover:bg-emerald-700 active:scale-98 text-white font-black text-2xl rounded-2xl shadow-lg transition flex items-center justify-center gap-2">
-                        <i class="fa-solid fa-paper-plane"></i> 發布至成果展示牆
-                    </button>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 活動四：2分鐘幾何極速解碼挑戰賽 ==================== -->
-        <section id="activity4" class="space-y-6 hidden">
-            <div class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
-                <!-- Header of Game -->
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-rose-500 pb-4 mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-12 h-12 bg-rose-500 text-white rounded-2xl flex items-center justify-center text-2xl font-black shadow-md">
-                            <i class="fa-solid fa-gamepad"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-black text-slate-900">幾何對稱極速挑戰賽</h2>
-                            <p class="text-slate-600 font-bold text-sm md:text-base">超大題庫（35+題無重複抽樣）！限時 2 分鐘，答錯累計 3 次即終止！</p>
-                        </div>
-                    </div>
-
-                    <!-- Status indicators: Timer, Lives, Score -->
-                    <div class="flex items-center gap-3">
-                        <div class="bg-amber-50 border-2 border-amber-300 px-4 py-2 rounded-2xl text-center shadow-sm">
-                            <span class="block text-xs font-black text-amber-800">剩餘時間</span>
-                            <span id="gameTimerText" class="text-2xl font-black text-amber-950 font-mono">02:00</span>
-                        </div>
-                        <div class="bg-rose-50 border-2 border-rose-300 px-4 py-2 rounded-2xl text-center shadow-sm min-w-[100px]">
-                            <span class="block text-xs font-black text-rose-800">生命值 (三次終止)</span>
-                            <div id="gameLivesBox" class="text-xl text-rose-500 flex justify-center gap-1 mt-0.5">
-                                <i class="fa-solid fa-heart"></i>
-                                <i class="fa-solid fa-heart"></i>
-                                <i class="fa-solid fa-heart"></i>
-                            </div>
-                        </div>
-                        <div class="bg-emerald-50 border-2 border-emerald-300 px-4 py-2 rounded-2xl text-center shadow-sm min-w-[80px]">
-                            <span class="block text-xs font-black text-emerald-800">挑戰得分</span>
-                            <span id="gameScoreText" class="text-2xl font-black text-emerald-950 font-mono">0</span>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Game Container Views -->
-                <div id="gamePlayContainer" class="min-h-[360px] flex flex-col justify-center items-center">
-                    <!-- Start View -->
-                    <div id="gameStartCard" class="text-center space-y-5 max-w-lg py-8">
-                        <div class="w-24 h-24 bg-gradient-to-tr from-rose-500 to-amber-400 text-white rounded-3xl mx-auto flex items-center justify-center text-5xl shadow-xl animate-bounce">
-                            <i class="fa-solid fa-stopwatch-20"></i>
-                        </div>
-                        <h3 class="text-2xl md:text-3xl font-black text-slate-900">準備好進行 2 分鐘幾何挑戰了嗎？</h3>
-                        <p class="text-slate-600 text-lg font-bold leading-relaxed">
-                            全新擴充 35 題幾何題庫！系統自動洗牌防重複！請在 120 秒內快速判斷線對稱、旋轉對稱、平移與建築紋樣。答對得分，<span class="text-rose-600 font-black">答錯累計 3 次立即終止</span>！
-                        </p>
-                        <button onclick="startSymmetryGame()" class="w-full py-4 bg-gradient-to-r from-rose-500 to-amber-500 hover:from-rose-600 hover:to-amber-600 text-white font-black text-2xl rounded-2xl shadow-xl active:scale-95 transition">
-                            <i class="fa-solid fa-play mr-2"></i> 開始 2 分鐘挑戰
-                        </button>
-                    </div>
-
-                    <!-- Question Active View -->
-                    <div id="gameActiveCard" class="hidden w-full max-w-2xl space-y-6 animate-pop-in">
-                        <!-- Progress bar -->
-                        <div class="w-full bg-slate-200 h-3 rounded-full overflow-hidden">
-                            <div id="gameProgressBar" class="bg-gradient-to-r from-emerald-500 via-amber-500 to-rose-500 h-full w-full transition-all duration-1000 ease-linear"></div>
-                        </div>
-
-                        <!-- Question Box -->
-                        <div class="bg-indigo-50 border-2 border-indigo-200 p-6 rounded-3xl shadow-sm">
-                            <div class="flex items-center justify-between mb-3">
-                                <span id="gameQCategory" class="bg-indigo-600 text-white text-xs font-black px-3 py-1 rounded-full">線對稱幾何</span>
-                                <div class="flex items-center gap-2">
-                                    <span id="gameQIndex" class="text-sm font-black text-indigo-900">第 1 題</span>
-                                    <span id="gameRemainBadge" class="text-xs bg-indigo-200 text-indigo-900 px-2 py-0.5 rounded-full font-bold">題庫抽樣中</span>
-                                </div>
-                            </div>
-                            <h4 id="gameQuestionText" class="text-xl md:text-2xl font-black text-slate-900 leading-snug">
-                                題目讀取中...
-                            </h4>
-                        </div>
-
-                        <!-- Answer Options -->
-                        <div id="gameOptionsGrid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                            <!-- Dynamic Options Buttons -->
-                        </div>
-                    </div>
-
-                    <!-- Game Over / Result View -->
-                    <div id="gameOverCard" class="hidden text-center space-y-5 max-w-md py-6">
-                        <div id="gameOverIcon" class="w-20 h-20 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md"></div>
-                        <h3 id="gameOverTitle" class="text-3xl font-black text-slate-900">挑戰結束</h3>
-                        <p id="gameOverMsg" class="text-lg font-bold text-slate-600">訊息提示</p>
-
-                        <div class="bg-slate-50 border-2 border-slate-200 p-5 rounded-2xl space-y-3">
-                            <div class="flex justify-between items-center text-base font-bold">
-                                <span class="text-slate-500">最終獲得分數：</span>
-                                <span id="finalScoreVal" class="text-3xl font-black text-indigo-600 font-mono">0</span>
-                            </div>
-                            <div class="flex justify-between items-center text-base font-bold">
-                                <span class="text-slate-500">作答題數：</span>
-                                <span id="finalQuestionsAnswered" class="text-xl font-black text-slate-800 font-mono">0</span>
-                            </div>
-                            <div class="flex justify-between items-center text-base font-bold">
-                                <span class="text-slate-500">獲得榮譽稱號：</span>
-                                <span id="finalBadgeVal" class="text-lg font-black text-amber-600">幾何見習偵探</span>
-                            </div>
-                        </div>
-
-                        <div class="flex flex-col sm:flex-row gap-3 pt-2">
-                            <button onclick="startSymmetryGame()" class="flex-1 py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg rounded-2xl shadow active:scale-95 transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-rotate-right"></i> 再挑戰一次
-                            </button>
-                            <button onclick="switchActivity(5)" class="flex-1 py-3.5 bg-amber-400 hover:bg-amber-500 text-indigo-950 font-black text-lg rounded-2xl shadow active:scale-95 transition flex items-center justify-center gap-2">
-                                <i class="fa-solid fa-gem"></i> 前往成果展示牆
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- ==================== 活動五：成果展示牆（學生成果直接呈現與圖片匯出） ==================== -->
-        <section id="activity5" class="space-y-6 hidden">
-            <div id="showcaseExportArea" class="bg-white p-5 md:p-8 rounded-3xl shadow-lg border-2 border-indigo-100">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b-4 border-amber-400 pb-4 mb-6">
-                    <div class="flex items-center gap-3">
-                        <div class="w-11 h-11 bg-amber-400 text-indigo-950 rounded-2xl flex items-center justify-center text-2xl font-black shadow-sm">
-                            <i class="fa-solid fa-gem"></i>
-                        </div>
-                        <div>
-                            <h2 class="text-2xl md:text-3xl font-black text-indigo-950">全班幾何美學成果展示牆</h2>
-                            <p class="text-slate-600 font-bold text-sm md:text-base">學生的萬花筒創作與 ORID 思考直接於網頁公開展出，支援觀摩、點讚與匯出圖檔！</p>
-                        </div>
-                    </div>
-
-                    <!-- 操作按鈕群：匯出 PNG 圖檔、清除所有作品 -->
-                    <div class="flex items-center gap-2">
-                        <button onclick="exportShowcasePNG()" class="px-4 py-2.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black rounded-xl text-base shadow active:scale-95 transition flex items-center gap-2">
-                            <i class="fa-solid fa-file-image"></i> 匯出成果圖檔 (PNG)
-                        </button>
-                        <button onclick="openClearConfirmModal()" class="px-4 py-2.5 bg-rose-100 hover:bg-rose-200 text-rose-700 font-black rounded-xl text-base active:scale-95 transition flex items-center gap-2">
-                            <i class="fa-solid fa-trash-can"></i> 清空作品
-                        </button>
-                    </div>
-                </div>
-
-                <!-- 數據總覽小看板 -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-3 md:gap-4 mb-6">
-                    <div class="bg-indigo-50 p-4 rounded-2xl text-center border-2 border-indigo-200 shadow-sm">
-                        <span class="block text-xs md:text-sm text-indigo-800 font-black">已發布作品總數</span>
-                        <span id="statTotalCount" class="text-2xl md:text-3xl font-black text-indigo-950 font-mono">0</span>
-                    </div>
-                    <div class="bg-emerald-50 p-4 rounded-2xl text-center border-2 border-emerald-200 shadow-sm">
-                        <span class="block text-xs md:text-sm text-emerald-800 font-black">萬花筒幾何創作</span>
-                        <span id="statKaleidoArtCount" class="text-2xl md:text-3xl font-black text-emerald-950 font-mono">0</span>
-                    </div>
-                    <div class="bg-rose-50 p-4 rounded-2xl text-center border-2 border-rose-200 shadow-sm">
-                        <span class="block text-xs md:text-sm text-rose-800 font-black">2分鐘挑戰最高分</span>
-                        <span id="statBestGameScore" class="text-2xl md:text-3xl font-black text-rose-950 font-mono">0</span>
-                    </div>
-                    <div class="bg-amber-50 p-4 rounded-2xl text-center border-2 border-amber-200 shadow-sm">
-                        <span class="block text-xs md:text-sm text-amber-800 font-black">累計同儕愛心</span>
-                        <span id="statTotalLikes" class="text-2xl md:text-3xl font-black text-amber-950 font-mono">0</span>
-                    </div>
-                </div>
-
-                <!-- 作品展示列表區 -->
-                <div id="showcaseGrid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    <!-- 若無作品時之提示 -->
-                    <div id="noSubmissionsBox" class="col-span-full py-16 text-center text-slate-400 font-black text-xl bg-slate-50 rounded-3xl border-2 border-dashed border-slate-300">
-                        <i class="fa-solid fa-palette text-5xl mb-3 text-slate-300 block"></i>
-                        目前尚無作品發布，快到「活動三」完成萬花筒並送出吧！
-                    </div>
-                </div>
-            </div>
-        </section>
-
-    </main>
-
-    <!-- 網頁最下方專屬 Footer -->
-    <footer class="bg-indigo-950 text-indigo-200 py-4 px-4 text-center text-lg md:text-xl font-bold mt-auto border-t-4 border-indigo-800">
-        數感實驗室 | 互動學習系統 | Design：S.C. Kuo
-    </footer>
-
-    <!-- ================= Modals 彈出視窗區域 ================= -->
-
-    <!-- Modal 1: Dynamic QR Code Modal -->
-    <div id="qrModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-sm w-full text-center shadow-2xl border-4 border-indigo-400 relative animate-in fade-in zoom-in duration-200">
-            <button onclick="toggleModal('qrModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
-            
-            <h3 class="text-2xl font-black text-indigo-950 mb-1">掃描開啟學習網頁</h3>
-            <p class="text-slate-600 font-bold text-sm mb-4">支援 iPad 相機直接掃描進入</p>
-
-            <!-- Dynamic QR Code Container -->
-            <div class="bg-white p-4 rounded-2xl border-2 border-slate-200 shadow-inner inline-block mb-4">
-                <div id="qrcodeCanvas" class="flex justify-center"></div>
-            </div>
-
-            <!-- Copy URL Backup Button -->
-            <button onclick="copyCurrentURL()" class="w-full py-3.5 bg-indigo-600 hover:bg-indigo-700 text-white font-black text-xl rounded-2xl shadow-md active:scale-95 transition flex items-center justify-center gap-2">
-                <i class="fa-regular fa-copy"></i> 一鍵複製網址
-            </button>
-            <p id="copyAlert" class="text-emerald-600 text-base font-black mt-2 opacity-0 transition-opacity duration-300">已成功複製網址到剪貼簿！</p>
+        <!-- ③ 課程指引 -->
+        <div class="tooltip-wrapper">
+          <button id="btn-guide" onclick="openGuideModal()" class="w-12 h-12 rounded-xl bg-amber-50 hover:bg-amber-100 text-amber-700 flex items-center justify-center text-xl transition-all shadow-sm border border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-400" aria-label="課程設計說明">
+            <i class="fa-solid fa-book-open"></i>
+          </button>
+          <div class="tooltip-text">
+            <span>課程設計說明</span>
+          </div>
         </div>
+
+      </div>
     </div>
+  </header>
 
-    <!-- Modal 2: 課程指引彈窗 -->
-    <div id="guideModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-lg w-full max-h-[85vh] overflow-y-auto shadow-2xl border-4 border-indigo-400 relative">
-            <button onclick="toggleModal('guideModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
+  <!-- 學生基本資訊列：班級（五年一班～五年十四班）、座號（1～28號）、預設為五年一班28號野比大雄 -->
+  <section class="bg-indigo-900 text-white px-4 py-3 shadow-inner">
+    <div class="max-w-7xl mx-auto flex flex-wrap items-center justify-between gap-3 text-base md:text-lg">
+      <div class="flex items-center gap-2 font-bold">
+        <i class="fa-solid fa-user-graduate text-amber-400 text-xl"></i>
+        <span>學習者登錄：</span>
+      </div>
+
+      <div class="flex flex-wrap items-center gap-3">
+        <!-- 班級選單 -->
+        <div class="flex items-center gap-1.5 bg-indigo-950/80 px-3 py-1.5 rounded-xl border border-indigo-700">
+          <label for="class-select" class="text-indigo-200 font-bold text-sm">班級</label>
+          <select id="class-select" class="bg-indigo-800 text-white font-bold rounded-lg px-2 py-1 text-base border border-indigo-500 focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+            <!-- 動態生成 5年1班 ~ 5年14班 -->
+          </select>
+        </div>
+
+        <!-- 座號選單 -->
+        <div class="flex items-center gap-1.5 bg-indigo-950/80 px-3 py-1.5 rounded-xl border border-indigo-700">
+          <label for="seat-select" class="text-indigo-200 font-bold text-sm">座號</label>
+          <select id="seat-select" class="bg-indigo-800 text-white font-bold rounded-lg px-2 py-1 text-base border border-indigo-500 focus:ring-2 focus:ring-amber-400 outline-none cursor-pointer">
+            <!-- 動態生成 1 ~ 28 號 -->
+          </select>
+        </div>
+
+        <!-- 姓名輸入 -->
+        <div class="flex items-center gap-1.5 bg-indigo-950/80 px-3 py-1.5 rounded-xl border border-indigo-700">
+          <label for="student-name" class="text-indigo-200 font-bold text-sm">姓名</label>
+          <input type="text" id="student-name" value="野比大雄" class="bg-indigo-800 text-white font-bold rounded-lg px-2.5 py-1 text-base w-32 border border-indigo-500 focus:ring-2 focus:ring-amber-400 outline-none">
+        </div>
+
+        <!-- 快速同步標籤 -->
+        <div class="hidden lg:flex items-center gap-1 text-xs text-amber-300 bg-amber-900/40 px-3 py-1.5 rounded-lg border border-amber-600/40">
+          <i class="fa-solid fa-circle-check"></i>
+          <span>資訊將自動代入 ORID 認證卡</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <main class="flex-1 max-w-7xl w-full mx-auto p-3 md:p-6 space-y-6">
+
+    <!-- ========================================== -->
+    <!-- 分頁一：幾何解碼台（活動一 & 活動二） -->
+    <!-- ========================================== -->
+    <div id="tab-decode" class="tab-pane space-y-6">
+      
+      <!-- 導引卡片 -->
+      <div class="bg-gradient-to-r from-indigo-700 via-indigo-600 to-purple-700 rounded-3xl p-5 md:p-7 text-white shadow-lg relative overflow-hidden">
+        <div class="relative z-10 max-w-3xl space-y-2">
+          <span class="inline-block bg-white/20 text-white text-xs md:text-sm font-black px-3 py-1 rounded-full uppercase tracking-wider backdrop-blur-sm">活動一 & 二：異文化幾何解碼與對稱探索</span>
+          <h2 class="text-2xl md:text-4xl font-black font-brand">伊斯蘭幾何紋樣 × 自然植物對稱實作</h2>
+          <p class="text-indigo-100 text-base md:text-lg leading-relaxed">
+            透過透明方格板覆蓋、標記對稱軸與旋轉中心，對比「人造完美幾何對稱」與「自然界有機對稱（如鹿角蕨）」，推論鏡射、旋轉與平移的數學美感法則！
+          </p>
+        </div>
+        <div class="absolute -right-8 -bottom-10 opacity-15 text-white text-9xl pointer-events-none">
+          <i class="fa-solid fa-certificate"></i>
+        </div>
+      </div>
+
+      <!-- 互動解碼工作台 -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- 左側畫布區（8 欄） -->
+        <div class="lg:col-span-8 bg-white rounded-3xl p-4 md:p-6 shadow-md border-2 border-slate-200 space-y-4">
+          
+          <!-- 畫布上方控制項目 -->
+          <div class="flex flex-wrap items-center justify-between gap-3">
+            <div class="flex items-center gap-2">
+              <span class="w-3 h-8 bg-indigo-600 rounded-full"></span>
+              <h3 class="text-xl md:text-2xl font-black text-slate-800" id="pattern-title">伊斯蘭八角星紋樣 (Girih)</h3>
+            </div>
             
-            <h3 class="text-2xl font-black text-indigo-950 mb-4 flex items-center gap-2 border-b-2 border-slate-200 pb-3">
-                <i class="fa-solid fa-book-open text-amber-500"></i> 課程操作指引
+            <div class="flex flex-wrap items-center gap-2">
+              <button data-pattern="islamic8" onclick="changePattern('islamic8')" class="pattern-chip px-3 py-1.5 rounded-xl font-bold text-sm bg-indigo-100 text-indigo-700 border-2 border-indigo-400">八角星紋樣</button>
+              <button data-pattern="islamic12" onclick="changePattern('islamic12')" class="pattern-chip px-3 py-1.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border-2 border-transparent">十二芒星穹頂</button>
+              <button data-pattern="platycerium" onclick="changePattern('platycerium')" class="pattern-chip px-3 py-1.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border-2 border-transparent">自然鹿角蕨</button>
+              <button data-pattern="halfIncomplete" onclick="changePattern('halfIncomplete')" class="pattern-chip px-3 py-1.5 rounded-xl font-bold text-sm bg-slate-100 text-slate-600 border-2 border-transparent">半成品補全挑戰</button>
+            </div>
+          </div>
+
+          <!-- 主視覺畫布容器 -->
+          <div id="canvas-container" class="relative w-full aspect-square max-h-[500px] mx-auto bg-slate-900 rounded-2xl overflow-hidden border-4 border-indigo-200 flex items-center justify-center shadow-inner">
+            
+            <!-- SVG 主畫布 -->
+            <svg id="svg-canvas" viewBox="0 0 500 500" class="w-full h-full">
+              <!-- 動態渲染紋樣內容 -->
+            </svg>
+
+            <!-- 透明方格板圖層 (可開關) -->
+            <div id="grid-layer" class="absolute inset-0 grid-overlay pointer-events-none hidden opacity-80 border-2 border-indigo-400/50">
+              <div class="absolute top-2 left-2 bg-indigo-900/80 text-white text-xs px-2 py-0.5 rounded font-mono">透明方格板 (1格 = 20px)</div>
+            </div>
+
+            <!-- 對稱軸圖層 (SVG) -->
+            <svg id="axes-layer" viewBox="0 0 500 500" class="absolute inset-0 w-full h-full pointer-events-none hidden">
+              <!-- 動態繪製對稱軸 -->
+            </svg>
+
+            <!-- 旋轉中心指示標記 -->
+            <div id="center-marker" class="absolute hidden pointer-events-none flex flex-col items-center justify-center" style="top: 50%; left: 50%; transform: translate(-50%, -50%);">
+              <div class="w-6 h-6 rounded-full bg-rose-500 border-2 border-white animate-ping absolute"></div>
+              <div class="w-5 h-5 rounded-full bg-rose-600 border-2 border-white shadow-lg flex items-center justify-center z-10">
+                <div class="w-1.5 h-1.5 rounded-full bg-white"></div>
+              </div>
+              <span class="mt-1 bg-rose-900 text-white text-xs font-bold px-2 py-0.5 rounded shadow">旋轉中心 (250, 250)</span>
+            </div>
+          </div>
+
+          <!-- 畫布底部快速狀態提示 -->
+          <div class="flex items-center justify-between text-sm md:text-base font-bold text-slate-600 bg-slate-50 p-3 rounded-xl border border-slate-200">
+            <div class="flex items-center gap-2">
+              <i class="fa-solid fa-eye text-indigo-600 text-lg"></i>
+              <span id="pattern-desc">伊斯蘭八角星：具備 4 條對稱軸與 8 階旋轉對稱性（每次旋轉 45° 完全重合）。</span>
+            </div>
+            <span id="symmetry-badge" class="bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-1 rounded-md">完美幾何對稱</span>
+          </div>
+        </div>
+
+        <!-- 右側工具控制盤（4 欄） -->
+        <div class="lg:col-span-4 bg-white rounded-3xl p-5 md:p-6 shadow-md border-2 border-slate-200 space-y-5">
+          <div class="border-b border-slate-200 pb-3">
+            <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+              <i class="fa-solid fa-sliders text-indigo-600"></i>
+              <span>解碼透視工具箱</span>
             </h3>
+            <p class="text-xs text-slate-500 mt-1">針對 iPad 大按鈕優化，點擊即時觀察幾何特徵</p>
+          </div>
 
-            <div class="space-y-4 text-slate-800 leading-relaxed font-medium">
-                <div class="p-4 bg-indigo-50 rounded-2xl border border-indigo-200 space-y-1.5">
-                    <strong class="text-indigo-950 font-black text-lg block flex items-center gap-2">
-                        <i class="fa-solid fa-bullseye text-indigo-600"></i> 一、學習目標 (S-5-4 / s-Ⅲ-6)
-                    </strong>
-                    <p class="text-sm text-slate-700 leading-relaxed">
-                        1. <strong>認知</strong>：辨識線對稱（鏡射）、旋轉對稱、中心對稱與平移等幾何變換規則。<br>
-                        2. <strong>技能</strong>：能使用畫筆標示對稱軸與旋轉中心，並在萬花筒中創造多重對稱圖紋。<br>
-                        3. <strong>情意</strong>：探究伊斯蘭建築文化幾何與大自然有機對稱，建立跨領域美感思維。
-                    </p>
-                </div>
+          <!-- 工具 1：透明方格板開關 -->
+          <div class="space-y-2">
+            <label class="text-base font-black text-slate-700 block">① 透明方格板操作</label>
+            <button id="btn-toggle-grid" onclick="toggleGrid()" class="btn-touch w-full py-3.5 px-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 text-indigo-700 font-bold text-base flex items-center justify-between shadow-sm">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-border-all text-xl"></i> 覆蓋透明方格板</span>
+              <span id="grid-status" class="bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full">關閉中</span>
+            </button>
+          </div>
 
-                <div class="p-4 bg-amber-50 rounded-2xl border border-amber-200 space-y-1.5">
-                    <strong class="text-amber-950 font-black text-lg block flex items-center gap-2">
-                        <i class="fa-solid fa-tablet-screen-button text-amber-600"></i> 二、網頁操作說明
-                    </strong>
-                    <p class="text-sm text-slate-700 leading-relaxed">
-                        • <strong>活動一</strong>：點擊圖卡個別切換鏡射、旋轉與平移的暫停與播放動畫。<br>
-                        • <strong>活動二</strong>：手繪對稱軸（金黃虛線）與點擊標示旋轉中心（紅點），支援透明方格網與復原。<br>
-                        • <strong>活動三</strong>：萬花筒畫布即時渲染 8 重對稱，填寫 ORID 心得直接公開發布。<br>
-                        • <strong>挑戰賽</strong>：限時 2 分鐘極速判斷幾何對稱，35+ 題無重複隨機題庫，錯誤滿 3 次即終止！<br>
-                        • <strong>成果牆</strong>：支援同儕點讚、刪除個別草稿、作品放大檢視，並可一鍵下載為「PNG 圖片檔」。
-                    </p>
-                </div>
+          <!-- 工具 2：對稱軸描繪 -->
+          <div class="space-y-2">
+            <label class="text-base font-black text-slate-700 block">② 水性筆標記對稱軸</label>
+            <button id="btn-toggle-axes" onclick="toggleAxes()" class="btn-touch w-full py-3.5 px-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 text-indigo-700 font-bold text-base flex items-center justify-between shadow-sm">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-pen-ruler text-xl"></i> 描繪隱藏對稱軸</span>
+              <span id="axes-status" class="bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full">未標示</span>
+            </button>
+          </div>
 
-                <div class="p-4 bg-emerald-50 rounded-2xl border border-emerald-200 space-y-1.5">
-                    <strong class="text-emerald-950 font-black text-lg block flex items-center gap-2">
-                        <i class="fa-solid fa-comments text-emerald-600"></i> 三、課堂提問建議
-                    </strong>
-                    <p class="text-sm text-slate-700 leading-relaxed">
-                        • <strong>提問 1（規律）</strong>：「為什麼古代清真寺建築極少使用人物或動物肖像，而是大量使用幾何紋樣？」<br>
-                        • <strong>提問 2（對比）</strong>：「人造的幾何對稱與自然界鹿角蕨的對稱，最大的差別是什麼？」<br>
-                        • <strong>提問 3（應用）</strong>：「當我們在萬花筒畫布劃下一筆時，為什麼會同時出現 8 個方向的對應線條？」
-                    </p>
-                </div>
+          <!-- 工具 3：旋轉中心與動態旋轉 -->
+          <div class="space-y-2">
+            <label class="text-base font-black text-slate-700 block">③ 標記旋轉中心與旋轉檢驗</label>
+            <button id="btn-toggle-center" onclick="toggleCenter()" class="btn-touch w-full py-3 px-4 rounded-2xl bg-indigo-50 hover:bg-indigo-100 border-2 border-indigo-200 text-indigo-700 font-bold text-base flex items-center justify-between shadow-sm mb-2">
+              <span class="flex items-center gap-2"><i class="fa-solid fa-crosshairs text-xl text-rose-500"></i> 標定旋轉中心</span>
+              <span id="center-status" class="bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full">未標示</span>
+            </button>
+            
+            <div class="bg-slate-50 p-3 rounded-2xl border border-slate-200 space-y-2">
+              <div class="flex justify-between items-center text-sm font-bold text-slate-700">
+                <span>萬花筒旋轉角度：</span>
+                <span id="rotation-angle-display" class="text-indigo-600 font-mono text-base">0°</span>
+              </div>
+              <input type="range" id="rotation-slider" min="0" max="360" value="0" step="5" oninput="rotatePattern(this.value)" class="w-full accent-indigo-600 h-2 bg-slate-200 rounded-lg cursor-pointer">
+              <div class="flex justify-between text-xs text-slate-400 font-mono">
+                <span>0°</span>
+                <span>45°(重合)</span>
+                <span>90°</span>
+                <span>180°</span>
+                <span>360°</span>
+              </div>
             </div>
+          </div>
+
+          <!-- 工具 4：活動二半成品精準補全 -->
+          <div id="complete-half-box" class="space-y-2 pt-2 border-t border-slate-200">
+            <label class="text-base font-black text-amber-800 flex items-center gap-1.5">
+              <i class="fa-solid fa-puzzle-piece text-amber-600"></i>
+              <span>④ 幾何補全任務 (避免認知超載)</span>
+            </label>
+            <p class="text-xs text-slate-500">若圖案太繁複，以對稱軸為基準，補齊另一半！</p>
+            <button id="btn-complete-half" onclick="completeHalfPattern()" class="btn-touch w-full py-3 px-4 rounded-2xl bg-amber-500 hover:bg-amber-600 text-white font-black text-base flex items-center justify-center gap-2 shadow-md">
+              <i class="fa-solid fa-wand-magic-sparkles"></i>
+              <span id="complete-btn-text">補齊另一半對稱圖形</span>
+            </button>
+          </div>
+
+          <!-- 文化深度小專欄 -->
+          <div class="bg-amber-50 rounded-2xl p-4 border border-amber-200 space-y-1.5">
+            <div class="flex items-center gap-2 text-amber-900 font-bold text-sm">
+              <i class="fa-solid fa-mosque"></i>
+              <span>伊斯蘭為什麼偏好幾何裝飾？</span>
+            </div>
+            <p class="text-xs text-amber-800 leading-relaxed">
+              伊斯蘭信仰避免偶像崇拜，藝術家轉而將對宇宙無窮秩序的敬畏，透過純粹的數學幾何（無限延伸的對稱、旋轉、平移鑲嵌）表現出來，創造出令人嘆為觀止的清真寺穹頂！
+            </p>
+          </div>
+
         </div>
+
+      </div>
+
     </div>
 
-    <!-- Modal 3: 作品放大預覽彈窗 -->
-    <div id="previewModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 max-w-xl w-full text-center shadow-2xl border-4 border-indigo-400 relative">
-            <button onclick="toggleModal('previewModal')" class="absolute top-4 right-4 w-11 h-11 bg-slate-200 text-slate-700 rounded-full font-black text-xl hover:bg-rose-500 hover:text-white transition flex items-center justify-center">✕</button>
-            <h3 id="previewTitle" class="text-2xl font-black text-indigo-950 mb-3">萬花筒作品放大觀看</h3>
-            <div class="rounded-2xl overflow-hidden border-2 border-slate-200 bg-slate-950 mb-3">
-                <img id="previewImg" src="" alt="萬花筒作品大圖" class="w-full h-auto max-h-[65vh] object-contain mx-auto">
+    <!-- ========================================== -->
+    <!-- 分頁二：2分鐘限時挑戰賽 -->
+    <!-- ========================================== -->
+    <div id="tab-game" class="tab-pane hidden space-y-6">
+      
+      <!-- 遊戲資訊頂欄：倒數、生命值、分數、進度 -->
+      <div class="bg-white rounded-3xl p-5 md:p-6 shadow-md border-2 border-slate-200">
+        <div class="flex flex-wrap items-center justify-between gap-4">
+          
+          <!-- 倒數計時器 -->
+          <div class="flex items-center gap-3 bg-rose-50 border-2 border-rose-200 px-5 py-2.5 rounded-2xl">
+            <i class="fa-regular fa-clock text-rose-500 text-3xl animate-pulse"></i>
+            <div>
+              <div class="text-xs text-rose-500 font-black uppercase">剩餘時間</div>
+              <div id="game-timer" class="text-3xl md:text-4xl font-black text-rose-600 font-mono">02:00</div>
             </div>
-            <button onclick="toggleModal('previewModal')" class="px-6 py-2.5 bg-indigo-600 text-white font-bold text-lg rounded-xl hover:bg-indigo-700 transition">關閉預覽</button>
+          </div>
+
+          <!-- 愛心生命值 (3 顆心，答錯 3 次終止) -->
+          <div class="flex items-center gap-3 bg-amber-50 border-2 border-amber-200 px-5 py-2.5 rounded-2xl">
+            <div>
+              <div class="text-xs text-amber-600 font-black uppercase">容錯次數 (三次即終止)</div>
+              <div id="hearts-container" class="flex items-center gap-1.5 text-2xl text-rose-500 mt-0.5">
+                <i class="fa-solid fa-heart heart-item" id="heart-1"></i>
+                <i class="fa-solid fa-heart heart-item" id="heart-2"></i>
+                <i class="fa-solid fa-heart heart-item" id="heart-3"></i>
+              </div>
+            </div>
+          </div>
+
+          <!-- 得分與答對題數 -->
+          <div class="flex items-center gap-4">
+            <div class="text-right">
+              <div class="text-xs text-slate-400 font-black uppercase">累積積分</div>
+              <div id="game-score" class="text-3xl md:text-4xl font-black text-indigo-600 font-mono">0</div>
+            </div>
+            <div class="text-right border-l-2 border-slate-200 pl-4">
+              <div class="text-xs text-slate-400 font-black uppercase">答對題數</div>
+              <div id="game-correct-count" class="text-3xl md:text-4xl font-black text-emerald-600 font-mono">0</div>
+            </div>
+          </div>
+
         </div>
-    </div>
 
-    <!-- Modal 4: 自訂確認清空彈窗 (替代原生 confirm) -->
-    <div id="clearConfirmModal" class="fixed inset-0 bg-slate-900/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl p-6 md:p-8 max-w-md w-full text-center shadow-2xl border-4 border-rose-400 relative">
-            <div class="w-16 h-16 bg-rose-100 text-rose-600 rounded-full flex items-center justify-center text-3xl mx-auto mb-4">
-                <i class="fa-solid fa-triangle-exclamation"></i>
-            </div>
-            <h3 class="text-2xl font-black text-slate-900 mb-2">確定要清空所有作品嗎？</h3>
-            <p class="text-slate-600 font-bold mb-6">此動作將清除成果展示牆上的所有學生作品與按讚記錄。</p>
-            <div class="flex gap-3">
-                <button onclick="toggleModal('clearConfirmModal')" class="flex-1 py-3 bg-slate-200 hover:bg-slate-300 text-slate-700 font-black rounded-2xl transition text-lg">取消</button>
-                <button onclick="confirmClearAllShowcase()" class="flex-1 py-3 bg-rose-600 hover:bg-rose-700 text-white font-black rounded-2xl transition text-lg shadow-md">確定清空</button>
-            </div>
+        <!-- 遊戲進度條 -->
+        <div class="w-full bg-slate-100 h-3 rounded-full mt-4 overflow-hidden">
+          <div id="time-progress-bar" class="bg-gradient-to-r from-emerald-500 via-indigo-500 to-rose-500 h-full w-full transition-all duration-1000 ease-linear"></div>
         </div>
+      </div>
+
+      <!-- 遊戲主要答題區 / 開始畫面 -->
+      <div id="game-screen-wrapper" class="bg-white rounded-3xl p-6 md:p-10 shadow-lg border-2 border-slate-200 min-h-[460px] flex flex-col justify-center items-center relative overflow-hidden">
+        
+        <!-- 尚未開始狀態 -->
+        <div id="game-start-view" class="max-w-xl text-center space-y-6">
+          <div class="w-24 h-24 rounded-3xl bg-indigo-100 text-indigo-600 flex items-center justify-center text-5xl mx-auto shadow-md">
+            <i class="fa-solid fa-brain"></i>
+          </div>
+          <div class="space-y-2">
+            <h3 class="text-3xl md:text-4xl font-black text-slate-800 font-brand">2 分鐘幾何美感快問快答</h3>
+            <p class="text-slate-500 text-base md:text-lg">
+              題庫超過 30 題隨機抽取！挑戰你對「線對稱、旋轉對稱、平移規律與自然界有機幾何」的敏銳度。答錯三次愛心扣光將立即結算喔！
+            </p>
+          </div>
+          
+          <div class="grid grid-cols-3 gap-3 text-sm font-bold text-slate-600 max-w-md mx-auto">
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><i class="fa-solid fa-stopwatch text-indigo-600 mb-1 block text-lg"></i>限時 120 秒</div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><i class="fa-solid fa-shield-heart text-rose-500 mb-1 block text-lg"></i>3 顆愛心容錯</div>
+            <div class="bg-slate-50 p-3 rounded-xl border border-slate-200"><i class="fa-solid fa-layer-group text-amber-500 mb-1 block text-lg"></i>36+ 原創題庫</div>
+          </div>
+
+          <button onclick="startGame()" class="btn-touch w-full sm:w-auto px-10 py-5 rounded-2xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-2xl shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 mx-auto">
+            <i class="fa-solid fa-play"></i>
+            <span>開始限時挑戰</span>
+          </button>
+        </div>
+
+        <!-- 進行答題狀態 -->
+        <div id="game-play-view" class="w-full max-w-3xl space-y-6 hidden">
+          
+          <!-- 題目分類標籤與題號 -->
+          <div class="flex items-center justify-between border-b border-slate-200 pb-3">
+            <span id="question-category" class="bg-indigo-100 text-indigo-800 text-sm font-black px-3 py-1 rounded-full">線對稱概念</span>
+            <span id="question-index-tag" class="text-slate-400 font-bold text-sm">第 1 題</span>
+          </div>
+
+          <!-- 題目敘述文字（大字體、高對比） -->
+          <div class="bg-slate-50 p-6 md:p-8 rounded-2xl border-2 border-slate-200">
+            <h4 id="question-text" class="text-2xl md:text-3xl font-black text-slate-800 leading-snug">
+              題目載入中...
+            </h4>
+          </div>
+
+          <!-- 4 個超大觸控選項 (適合 iPad 10~12歲指尖觸控，高度大於 56px) -->
+          <div id="options-grid" class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <!-- 動態生成選項按鈕 -->
+          </div>
+
+          <!-- 即時反饋欄 -->
+          <div id="instant-feedback" class="text-center font-black text-xl py-2 rounded-xl transition-all opacity-0">
+            答對了！太厲害了！
+          </div>
+
+        </div>
+
+        <!-- 遊戲結束/中止狀態 -->
+        <div id="game-over-view" class="w-full max-w-xl text-center space-y-6 hidden">
+          <div class="w-24 h-24 rounded-full bg-amber-100 text-amber-600 flex items-center justify-center text-5xl mx-auto shadow-inner">
+            <i class="fa-solid fa-trophy" id="game-over-icon"></i>
+          </div>
+          
+          <div class="space-y-1">
+            <h3 id="game-over-title" class="text-3xl md:text-4xl font-black text-slate-800 font-brand">挑戰成功！恭喜過關</h3>
+            <p id="game-over-reason" class="text-slate-500 text-base">時間到！你的幾何數感表現相當亮眼！</p>
+          </div>
+
+          <!-- 結算成績看板 -->
+          <div class="bg-indigo-50 border-2 border-indigo-200 rounded-2xl p-5 grid grid-cols-3 gap-2 text-center">
+            <div>
+              <div class="text-xs text-indigo-500 font-bold">最終得分</div>
+              <div id="result-score" class="text-3xl md:text-4xl font-black text-indigo-700 font-mono">0</div>
+            </div>
+            <div>
+              <div class="text-xs text-emerald-600 font-bold">答對題數</div>
+              <div id="result-correct" class="text-3xl md:text-4xl font-black text-emerald-700 font-mono">0</div>
+            </div>
+            <div>
+              <div class="text-xs text-rose-500 font-bold">答錯次數</div>
+              <div id="result-wrong" class="text-3xl md:text-4xl font-black text-rose-700 font-mono">0</div>
+            </div>
+          </div>
+
+          <!-- 引導切換至 ORID 反思 -->
+          <div class="flex flex-col sm:flex-row gap-3 justify-center pt-2">
+            <button onclick="startGame()" class="btn-touch px-6 py-4 rounded-xl bg-slate-200 hover:bg-slate-300 text-slate-700 font-bold text-lg flex items-center justify-center gap-2">
+              <i class="fa-solid fa-rotate-left"></i> 再玩一次
+            </button>
+            <button onclick="goToOridTabWithResults()" class="btn-touch px-8 py-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-lg shadow-lg flex items-center justify-center gap-2">
+              <i class="fa-solid fa-arrow-right"></i> 查看 ORID 學習成果
+            </button>
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
 
-    <!-- Notification Toast Popup (無原生 alert) -->
-    <div id="toast" class="fixed bottom-12 left-1/2 transform -translate-x-1/2 bg-slate-900 text-white px-6 py-3.5 rounded-2xl shadow-2xl text-xl font-black transition-all duration-300 opacity-0 pointer-events-none z-50 flex items-center gap-3 border-2 border-slate-700">
-        <i class="fa-solid fa-circle-check text-emerald-400"></i>
-        <span id="toastMsg">通知訊息</span>
+    <!-- ========================================== -->
+    <!-- 分頁三：ORID 成果展與學習反思（活動三） -->
+    <!-- ========================================== -->
+    <div id="tab-orid" class="tab-pane hidden space-y-6">
+      
+      <!-- 成果頂端提示與匯出按鈕 -->
+      <div class="bg-white rounded-3xl p-5 md:p-6 shadow-md border-2 border-slate-200 flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="bg-emerald-100 text-emerald-800 text-xs font-black px-3 py-1 rounded-full uppercase">活動三：焦點討論與成果回顧</span>
+          <h2 class="text-2xl md:text-3xl font-black text-slate-800 font-brand mt-1">ORID 思考模式學習成果卡</h2>
+          <p class="text-slate-500 text-sm md:text-base">系統已自動整合你的幾何探究與遊戲戰報！你也可以點擊文字自訂你的反思心得。</p>
+        </div>
+
+        <button onclick="exportResultToImage()" class="btn-touch px-6 py-4 rounded-2xl bg-gradient-to-r from-emerald-600 to-teal-600 hover:from-emerald-700 hover:to-teal-700 text-white font-black text-lg shadow-lg flex items-center gap-3">
+          <i class="fa-solid fa-file-arrow-down text-2xl"></i>
+          <span>一鍵匯出成果圖檔 (PNG)</span>
+        </button>
+      </div>
+
+      <!-- 可匯出的證書展示主卡片 (HTML5 Canvas 渲染來源) -->
+      <div id="orid-export-container" class="bg-white rounded-3xl p-6 md:p-10 shadow-xl border-4 border-indigo-300 space-y-8 relative">
+        
+        <!-- 卡片頁首：機構徽章與學生姓名 -->
+        <div class="flex flex-wrap items-center justify-between border-b-2 border-indigo-100 pb-6 gap-4">
+          <div class="flex items-center gap-3">
+            <div class="w-14 h-14 rounded-2xl bg-indigo-700 text-amber-300 flex items-center justify-center text-3xl shadow-md">
+              <i class="fa-solid fa-shapes"></i>
+            </div>
+            <div>
+              <div class="text-xs font-black text-indigo-600 uppercase tracking-widest">數感實驗室 • 校定跨領域幾何課程</div>
+              <h3 class="text-2xl md:text-3xl font-black text-slate-800 font-brand">「規律的視覺美感」探究證書</h3>
+            </div>
+          </div>
+
+          <!-- 學員資訊卡 -->
+          <div class="bg-slate-50 border-2 border-indigo-200 rounded-2xl px-5 py-2.5 flex items-center gap-4">
+            <div>
+              <div class="text-xs text-slate-400 font-bold">學員身份</div>
+              <div class="text-lg md:text-xl font-black text-slate-800">
+                <span id="card-class">五年一班</span>
+                <span id="card-seat" class="text-indigo-600 ml-1">28號</span>
+              </div>
+            </div>
+            <div class="border-l-2 border-slate-200 pl-4">
+              <div class="text-xs text-slate-400 font-bold">姓名</div>
+              <div id="card-name" class="text-lg md:text-xl font-black text-slate-800">野比大雄</div>
+            </div>
+            <div class="border-l-2 border-slate-200 pl-4 text-center">
+              <div class="text-xs text-amber-600 font-bold">幾何數感積分</div>
+              <div id="card-score" class="text-2xl font-black text-indigo-700 font-mono">100</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ORID 四大焦點結構 -->
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+          
+          <!-- [O] 客觀事實 (Objective) -->
+          <div class="bg-indigo-50/70 border-2 border-indigo-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center gap-2 text-indigo-900 font-black text-lg">
+              <span class="w-8 h-8 rounded-lg bg-indigo-600 text-white flex items-center justify-center font-mono">O</span>
+              <h4>客觀事實 (Objective)</h4>
+            </div>
+            <p class="text-xs text-indigo-700 font-bold">提問：今天觀察到的幾何紋樣中，有哪些重複出現的形狀？完成了哪些挑戰？</p>
+            <textarea id="orid-o" rows="3" class="w-full bg-white p-3 rounded-xl border border-indigo-300 text-slate-700 font-medium text-base focus:ring-2 focus:ring-indigo-400 outline-none resize-none">在伊斯蘭紋樣中觀察到正方形、八角星、正三角形、菱形不斷旋轉與平移重複；在自然鹿角蕨中發現左右對稱的葉脈結構。在限時遊戲中完成了 10 題答對並克服對稱軸辨認挑戰。</textarea>
+          </div>
+
+          <!-- [R] 感受反應 (Reflective) -->
+          <div class="bg-amber-50/70 border-2 border-amber-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center gap-2 text-amber-900 font-black text-lg">
+              <span class="w-8 h-8 rounded-lg bg-amber-600 text-white flex items-center justify-center font-mono">R</span>
+              <h4>感受反應 (Reflective)</h4>
+            </div>
+            <p class="text-xs text-amber-700 font-bold">提問：當萬花筒轉動產生無窮規律時，你有什麼感覺？</p>
+            <textarea id="orid-r" rows="3" class="w-full bg-white p-3 rounded-xl border border-amber-300 text-slate-700 font-medium text-base focus:ring-2 focus:ring-amber-400 outline-none resize-none">轉動萬花筒時感覺非常震撼與驚喜，原本簡單的多邊形透過 45 度旋轉和鏡射，竟然能組合成像浩瀚星空一樣無邊無際的繁複花紋，讓我覺得數學公式很有藝術美！</textarea>
+          </div>
+
+          <!-- [I] 詮釋意義 (Interpretive) -->
+          <div class="bg-emerald-50/70 border-2 border-emerald-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center gap-2 text-emerald-900 font-black text-lg">
+              <span class="w-8 h-8 rounded-lg bg-emerald-600 text-white flex items-center justify-center font-mono">I</span>
+              <h4>詮釋意義 (Interpretive)</h4>
+            </div>
+            <p class="text-xs text-emerald-700 font-bold">提問：為什麼古代建築（如清真寺）常使用數學規律來裝飾？</p>
+            <textarea id="orid-i" rows="3" class="w-full bg-white p-3 rounded-xl border border-emerald-300 text-slate-700 font-medium text-base focus:ring-2 focus:ring-emerald-400 outline-none resize-none">因為伊斯蘭宗教文化禁止偶像崇拜，建築師將敬畏宇宙的心情寄託在永恆完美的數學秩序上。幾何圖案的嚴密對稱代表了完美和諧，給祈禱者帶來寧靜專注的力量。</textarea>
+          </div>
+
+          <!-- [D] 做出決定 (Decisional) -->
+          <div class="bg-purple-50/70 border-2 border-purple-200 rounded-2xl p-5 space-y-2">
+            <div class="flex items-center gap-2 text-purple-900 font-black text-lg">
+              <span class="w-8 h-8 rounded-lg bg-purple-600 text-white flex items-center justify-center font-mono">D</span>
+              <h4>做出決定 (Decisional)</h4>
+            </div>
+            <p class="text-xs text-purple-700 font-bold">提問：下次設計圖案時，你會選擇哪種對稱方式來展現美感？</p>
+            <textarea id="orid-d" rows="3" class="w-full bg-white p-3 rounded-xl border border-purple-300 text-slate-700 font-medium text-base focus:ring-2 focus:ring-purple-400 outline-none resize-none">我下次設計個人標誌或班級徽章時，會結合「八角旋轉對稱」當作外框，並在中心保留自然葉脈的有機不對稱線條，創造出兼具嚴謹幾何與生命活力的獨特設計！</textarea>
+          </div>
+
+        </div>
+
+        <!-- 官方認證印章與日期 -->
+        <div class="flex flex-wrap items-center justify-between border-t border-slate-200 pt-5 text-sm text-slate-500 font-bold">
+          <div class="flex items-center gap-2">
+            <i class="fa-solid fa-calendar-check text-indigo-600"></i>
+            <span>學習完成日期：<span id="current-date-str">2026/09/26</span></span>
+          </div>
+          <div class="flex items-center gap-2 text-indigo-700">
+            <i class="fa-solid fa-stamp"></i>
+            <span>數感美學認證合格章 • SEAL OF NUMERACY ART</span>
+          </div>
+        </div>
+
+      </div>
+
     </div>
 
-    <script>
-        /* 全局狀態管理 (包含防重複題庫池與音效引擎) */
-        const appState = {
-            drawCount: 0,
-            showcaseSubmissions: [],
-            act2Mode: 'tile', // 'tile', 'fern', 'half'
-            act2Tool: 'axis', // 'axis', 'center'
-            showGrid: true,
-            penColor: '#ef4444',
-            penWidth: 6,
-            audioMuted: false,
-            game: {
-                timer: 120, // 2 minutes
-                lives: 3,   // 3 strikes terminate
-                score: 0,
-                intervalId: null,
-                currentQIndex: 0,
-                bestScore: 0,
-                answeredCount: 0,
-                unaskedQueue: [] // 防重複隨機題庫隊列
-            }
-        };
+  </main>
 
-        /* 離線 Web Audio API 音效合成引擎 (無外部音訊檔依賴) */
-        const audioCtx = (typeof window !== 'undefined' && (window.AudioContext || window.webkitAudioContext)) ? new (window.AudioContext || window.webkitAudioContext)() : null;
+  <!-- 彈窗一：QR Code 掃碼分享彈窗（支援 iPad 相機直接掃描與一鍵複製網址備用） -->
+  <div id="modal-qr" onclick="if(event.target === this) closeQrModal()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-md w-full p-6 md:p-8 shadow-2xl border-2 border-slate-200 text-center space-y-5 animate-scaleUp">
+      <div class="flex justify-between items-center border-b border-slate-100 pb-3">
+        <h3 class="text-xl font-black text-slate-800 flex items-center gap-2">
+          <i class="fa-solid fa-qrcode text-indigo-600"></i>
+          <span>行動載具掃碼加入</span>
+        </h3>
+        <button onclick="closeQrModal()" class="w-9 h-9 rounded-full bg-slate-100 text-slate-500 hover:bg-slate-200 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
 
-        function playSound(type) {
-            if (appState.audioMuted || !audioCtx) return;
-            try {
-                if (audioCtx.state === 'suspended') {
-                    audioCtx.resume();
-                }
-                const now = audioCtx.currentTime;
-                const osc = audioCtx.createOscillator();
-                const gain = audioCtx.createGain();
-                osc.connect(gain);
-                gain.connect(audioCtx.destination);
+      <p class="text-slate-600 text-sm">請使用 iPad 相機直接對準下方 QR Code 進行掃描即可即時同步開啟本頁：</p>
 
-                if (type === 'correct') {
-                    // 答對和弦音 (鈴聲)
-                    osc.type = 'sine';
-                    osc.frequency.setValueAtTime(587.33, now); // D5
-                    osc.frequency.exponentialRampToValueAtTime(880, now + 0.15); // A5
-                    gain.gain.setValueAtTime(0.2, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
-                    osc.start(now);
-                    osc.stop(now + 0.35);
-                } else if (type === 'wrong') {
-                    // 答錯低音蜂鳴
-                    osc.type = 'sawtooth';
-                    osc.frequency.setValueAtTime(220, now);
-                    osc.frequency.linearRampToValueAtTime(130, now + 0.25);
-                    gain.gain.setValueAtTime(0.25, now);
-                    gain.gain.exponentialRampToValueAtTime(0.01, now + 0.3);
-                    osc.start(now);
-                    osc.stop(now + 0.3);
-                } else if (type === 'fanfare') {
-                    // 成功完成大師號角音
-                    [523.25, 659.25, 783.99, 1046.5].forEach((freq, i) => {
-                        const subOsc = audioCtx.createOscillator();
-                        const subGain = audioCtx.createGain();
-                        subOsc.connect(subGain);
-                        subGain.connect(audioCtx.destination);
-                        subOsc.type = 'triangle';
-                        subOsc.frequency.setValueAtTime(freq, now + i * 0.1);
-                        subGain.gain.setValueAtTime(0.18, now + i * 0.1);
-                        subGain.gain.exponentialRampToValueAtTime(0.01, now + i * 0.1 + 0.35);
-                        subOsc.start(now + i * 0.1);
-                        subOsc.stop(now + i * 0.1 + 0.35);
-                    });
-                }
-            } catch (err) {
-                console.warn('Audio playback error:', err);
-            }
+      <!-- 動態 QR Code 容器 -->
+      <div id="qrcode-box" class="w-56 h-56 mx-auto p-3 bg-white border-4 border-indigo-200 rounded-2xl shadow-inner flex items-center justify-center">
+        <!-- QRCode.js 自動產製 -->
+      </div>
+
+      <div class="text-xs text-slate-400 break-all px-2 font-mono" id="current-page-url"></div>
+
+      <!-- 一鍵複製網址備用功能 -->
+      <div class="space-y-2 pt-2">
+        <button onclick="copyCurrentUrl()" class="btn-touch w-full py-3.5 px-4 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white font-black text-base flex items-center justify-center gap-2 shadow-md">
+          <i class="fa-solid fa-copy"></i>
+          <span id="copy-btn-text">一鍵複製網址 (備用)</span>
+        </button>
+        <p id="copy-success-tip" class="text-xs text-emerald-600 font-bold hidden">
+          <i class="fa-solid fa-circle-check"></i> 網址已複製至剪貼簿！
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- 彈窗二：課程指引彈窗（標題：課程設計說明，三大項：學習目標、操作說明、提問建議） -->
+  <div id="modal-guide" onclick="if(event.target === this) closeGuideModal()" class="fixed inset-0 z-50 bg-black/60 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-3xl w-full max-h-[85vh] flex flex-col shadow-2xl border-2 border-slate-200 overflow-hidden">
+      
+      <!-- 彈窗頂欄 -->
+      <div class="p-5 md:p-6 bg-indigo-700 text-white flex justify-between items-center flex-shrink-0">
+        <div class="flex items-center gap-3">
+          <div class="w-10 h-10 rounded-xl bg-amber-400 text-indigo-900 flex items-center justify-center text-xl shadow">
+            <i class="fa-solid fa-book-open"></i>
+          </div>
+          <h3 class="text-2xl font-black font-brand">課程設計說明</h3>
+        </div>
+        <button onclick="closeGuideModal()" class="w-9 h-9 rounded-full bg-white/20 text-white hover:bg-white/30 flex items-center justify-center text-lg">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+
+      <!-- 彈窗內容（三大項） -->
+      <div class="p-6 md:p-8 space-y-6 overflow-y-auto flex-1 text-slate-700">
+        
+        <!-- 一、學習目標 -->
+        <div class="space-y-3">
+          <h4 class="text-xl font-black text-indigo-800 flex items-center gap-2 border-b-2 border-indigo-100 pb-2">
+            <i class="fa-solid fa-bullseye text-indigo-600"></i>
+            <span>一、學習目標</span>
+          </h4>
+          <div class="bg-indigo-50/60 rounded-2xl p-4 space-y-2 text-base leading-relaxed">
+            <div class="flex items-start gap-2">
+              <span class="bg-indigo-600 text-white text-xs font-bold px-2 py-0.5 rounded mt-1">數學領域</span>
+              <p>能觀察伊斯蘭幾何紋樣與生活物件，辨認<b>鏡射（線對稱）、旋轉對稱、平移</b>之幾何規律，標示對稱軸與旋轉中心（對應 108 課綱 [s-Ⅲ-6]、[S-5-4]）。</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-amber-600 text-white text-xs font-bold px-2 py-0.5 rounded mt-1">藝術涵養</span>
+              <p>感受人造完美對稱與自然界有機對稱（如鹿角蕨）之美感差異，提升幾何式樣的審美知覺（對應 [數-E-B3]、[視A-Ⅲ-1]）。</p>
+            </div>
+            <div class="flex items-start gap-2">
+              <span class="bg-emerald-600 text-white text-xs font-bold px-2 py-0.5 rounded mt-1">國際教育</span>
+              <p>理解伊斯蘭建築大量運用幾何紋樣的宗教與文化脈絡，體察多元文化之美（融入【國E4】）。</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- 二、網頁操作說明 -->
+        <div class="space-y-3">
+          <h4 class="text-xl font-black text-indigo-800 flex items-center gap-2 border-b-2 border-indigo-100 pb-2">
+            <i class="fa-solid fa-tablet-screen-button text-indigo-600"></i>
+            <span>二、網頁操作說明</span>
+          </h4>
+          <ul class="space-y-2.5 text-base list-disc list-inside bg-slate-50 p-4 rounded-2xl border border-slate-200">
+            <li><b>幾何解碼台：</b>切換八角星、十二芒星或自然鹿角蕨，點擊右側大按鈕覆蓋「透明方格板」、描繪「對稱軸」或拖曳「旋轉角度滑桿」。若遇到複雜紋樣，點擊「幾何補全」體驗以對稱軸補齊另一半。</li>
+            <li><b>2分鐘限時挑戰：</b>點擊開始後進入 120 秒計時，包含 36 題隨機題庫。共有 3 顆愛心容錯機會，答錯三次將自動結束並結算。</li>
+            <li><b>ORID 成果展：</b>挑戰成績與探究紀錄將自動帶入 ORID 反思卡，支援直接在卡片上編輯反思心得，並可點擊「一鍵匯出成果圖檔 (PNG)」保存至本機。</li>
+          </ul>
+        </div>
+
+        <!-- 三、課堂提問建議 -->
+        <div class="space-y-3">
+          <h4 class="text-xl font-black text-indigo-800 flex items-center gap-2 border-b-2 border-indigo-100 pb-2">
+            <i class="fa-solid fa-comments text-indigo-600"></i>
+            <span>三、課堂提問建議 (ORID 焦點討論法)</span>
+          </h4>
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm">
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <span class="font-black text-indigo-600">[O] 客觀事實：</span>
+              <p class="mt-1">「今天觀察到的幾何紋樣中，有哪些重複出現的形狀？你找到了幾條對稱軸？」</p>
+            </div>
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <span class="font-black text-amber-600">[R] 感受反應：</span>
+              <p class="mt-1">「當萬花筒轉動產生無窮規律時，你的視覺有什麼感覺？對稱是否給人穩定的感受？」</p>
+            </div>
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <span class="font-black text-emerald-600">[I] 詮釋意義：</span>
+              <p class="mt-1">「為什麼古代伊斯蘭清真寺不畫人物肖像，而是選擇用數學幾何規律來裝飾穹頂？」</p>
+            </div>
+            <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+              <span class="font-black text-purple-600">[D] 做出決定：</span>
+              <p class="mt-1">「下次要設計個人數位徽章時，你會選擇線對稱、旋轉對稱還是自然有機對稱？」</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- 彈窗底部按鈕 -->
+      <div class="p-4 bg-slate-100 border-t border-slate-200 text-right flex-shrink-0">
+        <button onclick="closeGuideModal()" class="btn-touch px-6 py-2.5 rounded-xl bg-indigo-600 text-white font-black text-base shadow hover:bg-indigo-700">
+          我瞭解了，開始學習
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 彈窗三：iPad 成果圖片預覽視窗 (長按儲存至相簿) -->
+  <div id="modal-preview" onclick="if(event.target === this) closePreviewModal()" class="fixed inset-0 z-50 bg-black/75 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-white rounded-3xl max-w-4xl w-full max-h-[90vh] flex flex-col shadow-2xl border-2 border-slate-200 overflow-hidden">
+      <div class="p-4 bg-indigo-700 text-white flex justify-between items-center flex-shrink-0">
+        <div class="flex items-center gap-2 font-bold text-lg">
+          <i class="fa-solid fa-image text-amber-300"></i>
+          <span>學習證書預覽（iPad 專用）</span>
+        </div>
+        <button onclick="closePreviewModal()" class="w-8 h-8 rounded-full bg-white/20 text-white hover:bg-white/30 flex items-center justify-center">
+          <i class="fa-solid fa-xmark"></i>
+        </button>
+      </div>
+      <div class="p-4 overflow-y-auto flex-1 flex flex-col items-center justify-center space-y-3">
+        <p class="text-sm font-bold text-amber-800 bg-amber-50 px-4 py-2 rounded-xl border border-amber-200 w-full text-center">
+          <i class="fa-solid fa-hand-point-up"></i> 若檔案未自動下載，請長按下方證書圖片選擇「儲存影像」或「加入照片」！
+        </p>
+        <img id="preview-image" src="" alt="成果證書" class="max-w-full h-auto rounded-xl shadow-md border-2 border-indigo-100">
+      </div>
+      <div class="p-3 bg-slate-100 border-t border-slate-200 text-center flex-shrink-0">
+        <button onclick="closePreviewModal()" class="px-6 py-2 rounded-xl bg-indigo-600 text-white font-bold text-sm shadow">
+          關閉預覽視窗
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- 網頁最下方規範文字（只在中央位置顯示） -->
+  <footer class="mt-auto py-5 bg-white border-t border-slate-200 text-center">
+    <div class="text-sm md:text-base font-bold text-slate-600 tracking-wide">
+      數感實驗室  | 互動學習系統 | Design：S.C. Kuo
+    </div>
+  </footer>
+
+  <!-- 隱藏 Canvas 用於渲染成果圖片 -->
+  <canvas id="export-canvas" width="1200" height="960" class="hidden"></canvas>
+
+  <script>
+    const STATE = {
+      currentTab: 'decode',
+      studentClass: '五年一班',
+      studentSeat: '28號',
+      studentName: '野比大雄',
+      
+      // 解碼台狀態
+      currentPattern: 'islamic8',
+      gridVisible: false,
+      axesVisible: false,
+      centerVisible: false,
+      currentRotation: 0,
+      isHalfCompleted: false,
+
+      // 遊戲計時與狀態
+      gameDuration: 120,
+      remainingTime: 120,
+      timerInterval: null,
+      hearts: 3,
+      score: 0,
+      correctCount: 0,
+      wrongCount: 0,
+      isPlaying: false,
+      isAnswerLocked: false,
+      currentQuestionIndex: 0,
+      shuffledQuestions: []
+    };
+
+    /* Web Audio API 音效合成器 */
+    class SoundSynth {
+      constructor() {
+        this.ctx = null;
+      }
+      init() {
+        if (!this.ctx) {
+          const AudioContext = window.AudioContext || window.webkitAudioContext;
+          this.ctx = new AudioContext();
+        }
+        if (this.ctx && this.ctx.state === 'suspended') {
+          this.ctx.resume();
+        }
+      }
+      playCorrect() {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(523.25, this.ctx.currentTime);
+          osc.frequency.exponentialRampToValueAtTime(783.99, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.25);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.25);
+        } catch (e) {
+          console.debug(e);
+        }
+      }
+      playWrong() {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, this.ctx.currentTime);
+          osc.frequency.setValueAtTime(160, this.ctx.currentTime + 0.15);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.3);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.3);
+        } catch (e) {
+          console.debug(e);
+        }
+      }
+      playGameOver() {
+        try {
+          this.init();
+          const osc = this.ctx.createOscillator();
+          const gain = this.ctx.createGain();
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(440, this.ctx.currentTime);
+          osc.frequency.setValueAtTime(330, this.ctx.currentTime + 0.2);
+          osc.frequency.setValueAtTime(220, this.ctx.currentTime + 0.4);
+          gain.gain.setValueAtTime(0.2, this.ctx.currentTime);
+          gain.gain.exponentialRampToValueAtTime(0.01, this.ctx.currentTime + 0.6);
+          osc.connect(gain);
+          gain.connect(this.ctx.destination);
+          osc.start();
+          osc.stop(this.ctx.currentTime + 0.6);
+        } catch (e) {
+          console.debug(e);
+        }
+      }
+    }
+    const sounds = new SoundSynth();
+
+    window.addEventListener('touchstart', () => { sounds.init(); }, { once: true });
+    window.addEventListener('click', () => { sounds.init(); }, { once: true });
+
+    const QUESTION_BANK = [
+      {
+        q: "伊斯蘭建築（如清真寺穹頂）常使用幾何圖形裝飾，最主要的原因是什麼？",
+        options: ["信仰避免偶像崇拜，以數學秩序象徵宇宙和諧", "古代缺少彩色顏料", "幾何圖形施工費用最低", "只能畫三角形不能畫其他形狀"],
+        ans: 0,
+        category: "歷史與文化"
+      },
+      {
+        q: "一個正八邊形（常見於伊斯蘭八角星基底）共有幾條對稱軸？",
+        options: ["4 條", "6 條", "8 條", "16 條"],
+        ans: 2,
+        category: "對稱軸計算"
+      },
+      {
+        q: "如果一個圖案繞著旋轉中心旋轉 45° 就會和原本的圖案完全重合，這屬於哪種對稱？",
+        options: ["平移對稱", "旋轉對稱", "折疊消失", "單側鏡射"],
+        ans: 1,
+        category: "幾何變換"
+      },
+      {
+        q: "「自然界植物（如鹿角蕨葉脈）」與「伊斯蘭人造幾何紋樣」最大的不同點通常是？",
+        options: ["自然界具有完全百分之百無誤差的對稱", "自然界屬於有機生長對稱，會有微小的個體差異", "自然界植物沒有任何對稱性", "植物葉脈全部都是旋轉對稱"],
+        ans: 1,
+        category: "自然 vs 人造"
+      },
+      {
+        q: "線對稱圖形中，連接相對應的兩點之線段，會被對稱軸如何分割？",
+        options: ["平行且等長", "垂直平分", "任意相交 45 度", "重疊在一起"],
+        ans: 1,
+        category: "線對稱性質"
+      },
+      {
+        q: "在萬花筒中看到的繽紛幾何圖樣，主要是利用哪兩種鏡面光學原理產生的數學美感？",
+        options: ["凸透鏡放大與聚焦", "鏡射反射與多次旋轉對稱", "光線折射與色散", "影子的平移"],
+        ans: 1,
+        category: "萬花筒原理"
+      },
+      {
+        q: "如果將一個圖形沿著直尺方向「不旋轉、不翻轉」連續滑動排列，這種規律稱為？",
+        options: ["鏡射變換", "平移變換", "縮小變換", "立體投影"],
+        ans: 1,
+        category: "平移規律"
+      },
+      {
+        q: "國小課堂上使用「透明方格板」覆蓋在伊斯蘭紋樣上，最主要的功能是？",
+        options: ["把圖卡弄髒", "方便數出方格座標以精確找出對稱軸與中心", "防止平板反光", "讓圖案看起來變成立體的"],
+        ans: 1,
+        category: "工具與探究"
+      },
+      {
+        q: "十二芒星圖騰在旋轉一圈（360°）的過程中，會與自己完全重合幾次？",
+        options: ["6 次", "8 次", "12 次", "24 次"],
+        ans: 2,
+        category: "旋轉對稱"
+      },
+      {
+        q: "面對過於繁複的幾何圖騰若產生「認知超載」，最好的幾何分解策略是？",
+        options: ["直接放棄不看", "先找出單一對稱軸，聚焦分析半邊或基礎單元 (Unit)", "隨便畫幾條線", "把所有圖形塗黑"],
+        ans: 1,
+        category: "解題策略"
+      },
+      {
+        q: "下列哪一種英文字母同時具備「水平對稱軸」與「垂直對稱軸」？",
+        options: ["A", "H", "F", "L"],
+        ans: 1,
+        category: "線對稱概念"
+      },
+      {
+        q: "正方形的花磚進行平面鋪設（Tessellation），其相交頂點的內角和必須是幾度才能無縫密鋪？",
+        options: ["180°", "270°", "360°", "540°"],
+        ans: 2,
+        category: "鑲嵌鋪密"
+      },
+      {
+        q: "下列哪種自然界生物的身體外觀，屬於最典型的「兩側鏡射對稱」？",
+        options: ["蝴蝶展開雙翅", "變形蟲", "海綿動物", "風吹落葉堆"],
+        ans: 0,
+        category: "自然對稱"
+      },
+      {
+        q: "正三角形有幾條對稱軸？",
+        options: ["1 條", "2 條", "3 條", "無窮多條"],
+        ans: 2,
+        category: "幾何基礎"
+      },
+      {
+        q: "若將圖案以某一點為基準旋轉 180° 後與原圖完全重合，該中心點稱為？",
+        options: ["重心", "對稱軸", "旋轉中心", "端點"],
+        ans: 2,
+        category: "旋轉中心"
+      },
+      {
+        q: "伊斯蘭紋樣中常使用「菱形」組合成星狀圖騰，菱形的兩條對角線具有什麼特性？",
+        options: ["長度必定相等", "互相垂直平分", "平行不相交", "只有一條在內部"],
+        ans: 1,
+        category: "圖形特性"
+      },
+      {
+        q: "人體臉孔通常被認為具有對稱美感，但科學測量發現人臉左右兩側：",
+        options: ["100% 絕對精密對稱", "具有微小的不對稱，這正是自然有機的特徵", "完全沒有任何關聯", "左邊一定是右邊的兩倍大"],
+        ans: 1,
+        category: "美感探究"
+      },
+      {
+        q: "在五上「規律的視覺美感」單元中，哪一個工具最適合拿來檢驗「對稱點等距離」？",
+        options: ["溫度計", "透明直尺或方格板", "量筒", "天平"],
+        ans: 1,
+        category: "實作工具"
+      },
+      {
+        q: "將一朵八瓣花圖騰旋轉幾度，即可首次與下一瓣的花形完全重合？",
+        options: ["30°", "45°", "60°", "90°"],
+        ans: 1,
+        category: "角度計算"
+      },
+      {
+        q: "在印章蓋印的過程中，印章上的圖案與蓋在紙上的圖案屬於哪種變換關係？",
+        options: ["平移關係", "左右相反的鏡射對稱", "放大三倍", "旋轉 90 度"],
+        ans: 1,
+        category: "生活實例"
+      },
+      {
+        q: "如果一條直線能將圖形分成完全重疊的左右兩半，這條線稱為？",
+        options: ["平行線", "垂直線", "對稱軸", "切線"],
+        ans: 2,
+        category: "名詞定義"
+      },
+      {
+        q: "下列哪一個國字是「線對稱」國字？",
+        options: ["中", "左", "好", "動"],
+        ans: 0,
+        category: "生活對稱"
+      },
+      {
+        q: "古代阿罕布拉宮（Alhambra）被數學家讚嘆為幾何瑰寶，是因為它展示了幾種平面壁紙群對稱？",
+        options: ["只有 1 種", "全部 17 種平面對稱群", "100 種", "完全沒有規律"],
+        ans: 1,
+        category: "文化美學"
+      },
+      {
+        q: "圓形有幾條對稱軸？",
+        options: ["1 條", "4 條", "360 條", "無限多條"],
+        ans: 3,
+        category: "幾何特徵"
+      },
+      {
+        q: "下列哪一種動物的外殼展現出美麗的「對數螺旋（黃金螺旋）」自然規律？",
+        options: ["鸚鵡螺", "蚯蚓", "水母", "蝴蝶"],
+        ans: 0,
+        category: "自然美感"
+      },
+      {
+        q: "當我們把半個愛心圖案透過鏡子映照出完整愛心時，鏡面所在的位置相當於？",
+        options: ["旋轉角", "對稱軸", "圓周", "頂點"],
+        ans: 1,
+        category: "鏡射應用"
+      },
+      {
+        q: "一個圖形經過「平移」之後，它的形狀與大小會發生什麼改變？",
+        options: ["形狀變圓", "大小縮小一半", "形狀與大小完全不變", "方向會轉 180 度"],
+        ans: 2,
+        category: "全等性質"
+      },
+      {
+        q: "長方形（非正方形）一共有幾條對稱軸？",
+        options: ["1 條", "2 條", "4 條", "8 條"],
+        ans: 1,
+        category: "幾何概念"
+      },
+      {
+        q: "伊斯蘭紋樣中常常出現的「連續藤蔓花紋 (Arabesque)」，主要運用了哪種規律？",
+        options: ["隨機不規則碎形", "平移連續與卷草纏繞規律", "三度空間縮放", "黑白條碼"],
+        ans: 1,
+        category: "傳統藝術"
+      },
+      {
+        q: "在進行「半成品圖形補齊」挑戰時，最關鍵的第一步是？",
+        options: ["先把紙張撕破", "確認對稱軸位置，並找出對應端點的垂直等距座標", "隨便挑顏色塗滿", "閉上眼睛畫線"],
+        ans: 1,
+        category: "解題步驟"
+      },
+      {
+        q: "下列哪個日常標誌屬於「中心旋轉對稱」但「不是線對稱」？",
+        options: ["禁止停車標誌", "風車轉輪標誌（如三個葉片等向旋轉）", "正方形停止標誌", "等腰三角形警告標誌"],
+        ans: 1,
+        category: "生活辨識"
+      },
+      {
+        q: "為什麼在藝術創作中，適度加入一點點「不對稱元素」反而可能創造更強大的視覺張力？",
+        options: ["因為畫家畫錯了沒時間改", "打破過度完美的單調，製造視覺焦點與動態生命力", "能節省顏料", "電腦程式比較容易跑"],
+        ans: 1,
+        category: "美學哲理"
+      },
+      {
+        q: "雪花結晶之所以呈現六角對稱結構，是因為水分子在凝結時形成的哪種幾何鍵結？",
+        options: ["三角形鍵結", "六角形結晶排列", "圓形液滴", "立方體金屬鍵"],
+        ans: 1,
+        category: "自然科學"
+      },
+      {
+        q: "國小五年級在操作對稱幾何時，若要精確補齊另一半點 P，應測量點 P 到對稱軸的什麼距離？",
+        options: ["水平斜角距離", "垂直距離，且對側等長", "任意距離", "到原點的距離"],
+        ans: 1,
+        category: "幾何作圖"
+      },
+      {
+        q: "「ORID 焦點討論法」中的 [R] 代表 Reflective，主要引導我們反思什麼？",
+        options: ["背誦公式名稱", "內心的感受、情緒與第一直覺反應", "明天的考試分數", "測量儀器的廠牌"],
+        ans: 1,
+        category: "思考模型"
+      },
+      {
+        q: "觀察大自然與古代伊斯蘭藝術後，我們能得到什麼深刻的「數感啟發」？",
+        options: ["數學只能用在考卷算分數", "數學是人類理解與創造自然與文化秩序的美麗語言", "藝術家從來不喜歡幾何學", "只有直線才能算是規律"],
+        ans: 1,
+        category: "素養核心"
+      }
+    ];
+
+    function renderPatternSVG() {
+      const svg = document.getElementById('svg-canvas');
+      const axesLayer = document.getElementById('axes-layer');
+      const patternType = STATE.currentPattern;
+
+      svg.innerHTML = '';
+      axesLayer.innerHTML = '';
+
+      const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+      g.setAttribute('id', 'pattern-rotator');
+      g.setAttribute('transform-origin', '250 250');
+      g.setAttribute('transform', `rotate(${STATE.currentRotation} 250 250)`);
+
+      if (patternType === 'islamic8') {
+        g.innerHTML = `
+          <circle cx="250" cy="250" r="210" fill="#0f172a" stroke="#38bdf8" stroke-width="2" opacity="0.6"/>
+          <rect x="100" y="100" width="300" height="300" fill="none" stroke="#f59e0b" stroke-width="6" rx="8"/>
+          <rect x="100" y="100" width="300" height="300" fill="none" stroke="#6366f1" stroke-width="6" rx="8" transform="rotate(45 250 250)"/>
+          <polygon points="250,70 285,175 390,175 305,235 340,340 250,275 160,340 195,235 110,175 215,175" fill="#4338ca" stroke="#fbbf24" stroke-width="4" opacity="0.85"/>
+          <circle cx="250" cy="250" r="45" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+          <circle cx="250" cy="250" r="18" fill="#1e1b4b"/>
+          ${[0, 45, 90, 135, 180, 225, 270, 315].map(deg => `
+            <circle cx="250" cy="115" r="12" fill="#38bdf8" stroke="#ffffff" stroke-width="2" transform="rotate(${deg} 250 250)"/>
+            <line x1="250" y1="127" x2="250" y2="175" stroke="#38bdf8" stroke-width="3" stroke-dasharray="2,2" transform="rotate(${deg} 250 250)"/>
+          `).join('')}
+        `;
+        renderAxes(axesLayer, [0, 45, 90, 135]);
+      } 
+      else if (patternType === 'islamic12') {
+        g.innerHTML = `
+          <circle cx="250" cy="250" r="225" fill="#090d16" stroke="#fbbf24" stroke-width="3"/>
+          ${[0, 30, 60, 90].map(deg => `
+            <rect x="110" y="110" width="280" height="280" fill="none" stroke="#818cf8" stroke-width="3.5" rx="6" opacity="0.8" transform="rotate(${deg} 250 250)"/>
+          `).join('')}
+          <circle cx="250" cy="250" r="130" fill="none" stroke="#f59e0b" stroke-width="5" stroke-dasharray="8,5"/>
+          <polygon points="${generateStarPoints(250, 250, 12, 160, 85)}" fill="#1e1b4b" stroke="#38bdf8" stroke-width="4"/>
+          <circle cx="250" cy="250" r="40" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+          <circle cx="250" cy="250" r="12" fill="#0f172a"/>
+        `;
+        renderAxes(axesLayer, [0, 30, 60, 90, 120, 150]);
+      } 
+      else if (patternType === 'platycerium') {
+        g.innerHTML = `
+          <rect x="0" y="0" width="500" height="500" fill="#062b1a"/>
+          <ellipse cx="250" cy="380" rx="140" ry="90" fill="#14532d" stroke="#22c55e" stroke-width="3" opacity="0.9"/>
+          <line x1="250" y1="420" x2="250" y2="180" stroke="#4ade80" stroke-width="6" stroke-linecap="round"/>
+          <path d="M 250,330 C 190,300 130,240 100,160 C 85,120 70,80 50,60 C 75,90 90,140 115,160 C 130,130 145,90 150,50 C 160,95 170,140 190,180 C 210,130 225,85 240,40 C 245,95 248,150 250,210 Z" fill="#15803d" stroke="#86efac" stroke-width="3"/>
+          <path d="M 250,330 C 310,300 370,240 400,160 C 415,120 430,80 450,60 C 425,90 410,140 385,160 C 370,130 355,90 350,50 C 340,95 330,140 310,180 C 290,130 275,85 260,40 C 255,95 252,150 250,210 Z" fill="#16a34a" stroke="#86efac" stroke-width="3" opacity="0.95"/>
+          <path d="M 200,240 Q 150,180 120,100" stroke="#bbf7d0" stroke-width="2" fill="none" opacity="0.7"/>
+          <path d="M 220,200 Q 185,130 170,80" stroke="#bbf7d0" stroke-width="2" fill="none" opacity="0.7"/>
+          <path d="M 300,240 Q 350,180 380,100" stroke="#bbf7d0" stroke-width="2" fill="none" opacity="0.7"/>
+          <path d="M 280,200 Q 315,130 330,80" stroke="#bbf7d0" stroke-width="2" fill="none" opacity="0.7"/>
+          <circle cx="250" cy="350" r="14" fill="#a3e635" stroke="#ffffff" stroke-width="3"/>
+        `;
+        renderAxes(axesLayer, [0]);
+      } 
+      else if (patternType === 'halfIncomplete') {
+        g.innerHTML = `
+          <rect x="0" y="0" width="500" height="500" fill="#0f172a"/>
+          <path d="M 250,60 L 140,120 L 180,210 L 90,250 L 180,290 L 140,380 L 250,440 Z" fill="#4338ca" stroke="#fbbf24" stroke-width="5"/>
+          <circle cx="180" cy="250" r="30" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+          <polygon points="250,180 180,220 220,250 250,220" fill="#38bdf8"/>
+          <polygon points="250,320 180,280 220,250 250,280" fill="#38bdf8"/>
+          <g id="half-right-completion" style="display: ${STATE.isHalfCompleted ? 'block' : 'none'};">
+            <path d="M 250,60 L 360,120 L 320,210 L 410,250 L 320,290 L 360,380 L 250,440 Z" fill="#6366f1" stroke="#fbbf24" stroke-width="5" opacity="0.95"/>
+            <circle cx="320" cy="250" r="30" fill="#f59e0b" stroke="#ffffff" stroke-width="3"/>
+            <polygon points="250,180 320,220 280,250 250,220" fill="#38bdf8"/>
+            <polygon points="250,320 320,280 280,250 250,280" fill="#38bdf8"/>
+          </g>
+          <g id="half-placeholder-guide" style="display: ${STATE.isHalfCompleted ? 'none' : 'block'};">
+            <path d="M 250,60 L 360,120 L 320,210 L 410,250 L 320,290 L 360,380 L 250,440 Z" fill="none" stroke="#94a3b8" stroke-width="3" stroke-dasharray="8,8" opacity="0.6"/>
+            <text x="310" y="255" fill="#cbd5e1" font-size="20" font-weight="bold" font-family="sans-serif">【待補齊】</text>
+          </g>
+        `;
+        renderAxes(axesLayer, [0]);
+      }
+
+      svg.appendChild(g);
+    }
+
+    function generateStarPoints(cx, cy, spikes, outerRadius, innerRadius) {
+      let rot = Math.PI / 2 * 3;
+      let x = cx;
+      let y = cy;
+      const step = Math.PI / spikes;
+      let points = [];
+
+      for (let i = 0; i < spikes; i++) {
+        x = cx + Math.cos(rot) * outerRadius;
+        y = cy + Math.sin(rot) * outerRadius;
+        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        rot += step;
+
+        x = cx + Math.cos(rot) * innerRadius;
+        y = cy + Math.sin(rot) * innerRadius;
+        points.push(`${x.toFixed(1)},${y.toFixed(1)}`);
+        rot += step;
+      }
+      return points.join(' ');
+    }
+
+    function renderAxes(container, angleList) {
+      container.innerHTML = '';
+      angleList.forEach(deg => {
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', '250');
+        line.setAttribute('y1', '10');
+        line.setAttribute('x2', '250');
+        line.setAttribute('y2', '490');
+        line.setAttribute('stroke', '#ef4444');
+        line.setAttribute('stroke-width', '3');
+        line.setAttribute('stroke-dasharray', '6,6');
+        line.setAttribute('transform-origin', '250 250');
+        line.setAttribute('transform', `rotate(${deg} 250 250)`);
+        container.appendChild(line);
+      });
+    }
+
+    function switchTab(tabId) {
+      STATE.currentTab = tabId;
+      document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+      const activePane = document.getElementById(`tab-${tabId}`);
+      if (activePane) activePane.classList.remove('hidden');
+
+      const tabs = ['decode', 'game', 'orid'];
+      tabs.forEach(t => {
+        const btn = document.getElementById(`tab-btn-${t}`);
+        if (btn) {
+          if (t === tabId) {
+            btn.className = 'tab-btn px-3 md:px-5 py-2 rounded-xl text-base md:text-lg font-black transition-all flex items-center gap-2 bg-white text-indigo-700 shadow-sm';
+          } else {
+            btn.className = 'tab-btn px-3 md:px-5 py-2 rounded-xl text-base md:text-lg font-black transition-all flex items-center gap-2 text-slate-600 hover:text-indigo-600';
+          }
+        }
+      });
+
+      if (tabId === 'orid') {
+        syncResultsToORID();
+      }
+    }
+
+    function goToOridTabWithResults() {
+      switchTab('orid');
+      const oridCard = document.getElementById('orid-export-container');
+      if (oridCard) {
+        oridCard.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+
+    function changePattern(type) {
+      STATE.currentPattern = type;
+      STATE.isHalfCompleted = false;
+      STATE.currentRotation = 0;
+      document.getElementById('rotation-slider').value = 0;
+      document.getElementById('rotation-angle-display').innerText = '0°';
+
+      document.querySelectorAll('.pattern-chip').forEach(btn => {
+        if (btn.getAttribute('data-pattern') === type) {
+          btn.classList.remove('bg-slate-100', 'text-slate-600', 'border-transparent');
+          btn.classList.add('bg-indigo-100', 'text-indigo-700', 'border-indigo-400');
+        } else {
+          btn.classList.remove('bg-indigo-100', 'text-indigo-700', 'border-indigo-400');
+          btn.classList.add('bg-slate-100', 'text-slate-600', 'border-transparent');
+        }
+      });
+
+      const pTitle = document.getElementById('pattern-title');
+      const pDesc = document.getElementById('pattern-desc');
+      const pBadge = document.getElementById('symmetry-badge');
+      const halfBox = document.getElementById('complete-half-box');
+
+      if (type === 'islamic8') {
+        pTitle.innerText = '伊斯蘭八角星紋樣 (Girih)';
+        pDesc.innerText = '八角星紋樣：具備 4 條對稱軸與 8 階旋轉對稱性（每次旋轉 45° 完全重合）。';
+        pBadge.innerText = '完美幾何對稱';
+        pBadge.className = 'bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-1 rounded-md';
+        halfBox.classList.add('opacity-40', 'pointer-events-none');
+      } else if (type === 'islamic12') {
+        pTitle.innerText = '十二芒星清真寺穹頂花磚';
+        pDesc.innerText = '十二芒星穹頂：象徵天空無盡繁星，具備 6 條對稱軸與 30° 旋轉對稱。';
+        pBadge.innerText = '高階旋轉對稱';
+        pBadge.className = 'bg-indigo-100 text-indigo-800 text-xs font-black px-2.5 py-1 rounded-md';
+        halfBox.classList.add('opacity-40', 'pointer-events-none');
+      } else if (type === 'platycerium') {
+        pTitle.innerText = '自然植物對稱：鹿角蕨葉脈';
+        pDesc.innerText = '鹿角蕨：展現雙側有機對稱，生命生長雖有微小有機差異，卻維持和諧平衡。';
+        pBadge.innerText = '自然界有機對稱';
+        pBadge.className = 'bg-emerald-100 text-emerald-800 text-xs font-black px-2.5 py-1 rounded-md';
+        halfBox.classList.add('opacity-40', 'pointer-events-none');
+      } else if (type === 'halfIncomplete') {
+        pTitle.innerText = '半成品幾何補全挑戰';
+        pDesc.innerText = '活動二任務：右側圖形缺失！請利用中央對稱軸，將缺漏的另一半精準鏡射補齊。';
+        pBadge.innerText = '線對稱補全任務';
+        pBadge.className = 'bg-amber-100 text-amber-800 text-xs font-black px-2.5 py-1 rounded-md';
+        halfBox.classList.remove('opacity-40', 'pointer-events-none');
+      }
+
+      renderPatternSVG();
+    }
+
+    function toggleGrid() {
+      STATE.gridVisible = !STATE.gridVisible;
+      const layer = document.getElementById('grid-layer');
+      const status = document.getElementById('grid-status');
+      if (STATE.gridVisible) {
+        layer.classList.remove('hidden');
+        status.innerText = '覆蓋中';
+        status.className = 'bg-emerald-500 text-white text-xs font-black px-2 py-0.5 rounded-full';
+      } else {
+        layer.classList.add('hidden');
+        status.innerText = '關閉中';
+        status.className = 'bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full';
+      }
+    }
+
+    function toggleAxes() {
+      STATE.axesVisible = !STATE.axesVisible;
+      const layer = document.getElementById('axes-layer');
+      const status = document.getElementById('axes-status');
+      if (STATE.axesVisible) {
+        layer.classList.remove('hidden');
+        status.innerText = '已標示 (紅虛線)';
+        status.className = 'bg-rose-500 text-white text-xs font-black px-2 py-0.5 rounded-full';
+      } else {
+        layer.classList.add('hidden');
+        status.innerText = '未標示';
+        status.className = 'bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full';
+      }
+    }
+
+    function toggleCenter() {
+      STATE.centerVisible = !STATE.centerVisible;
+      const marker = document.getElementById('center-marker');
+      const status = document.getElementById('center-status');
+      if (STATE.centerVisible) {
+        marker.classList.remove('hidden');
+        status.innerText = '已鎖定 (250,250)';
+        status.className = 'bg-rose-500 text-white text-xs font-black px-2 py-0.5 rounded-full';
+      } else {
+        marker.classList.add('hidden');
+        status.innerText = '未標示';
+        status.className = 'bg-slate-300 text-slate-700 text-xs font-black px-2 py-0.5 rounded-full';
+      }
+    }
+
+    function rotatePattern(val) {
+      STATE.currentRotation = parseInt(val, 10);
+      document.getElementById('rotation-angle-display').innerText = `${STATE.currentRotation}°`;
+      const rotator = document.getElementById('pattern-rotator');
+      if (rotator) {
+        rotator.setAttribute('transform', `rotate(${STATE.currentRotation} 250 250)`);
+      }
+    }
+
+    function completeHalfPattern() {
+      if (STATE.currentPattern !== 'halfIncomplete') {
+        changePattern('halfIncomplete');
+      }
+      STATE.isHalfCompleted = !STATE.isHalfCompleted;
+      const btnText = document.getElementById('complete-btn-text');
+      const rightGroup = document.getElementById('half-right-completion');
+      const guideText = document.getElementById('half-placeholder-guide');
+
+      if (STATE.isHalfCompleted) {
+        btnText.innerText = '恢復為未完成半成品';
+        if (rightGroup) rightGroup.style.display = 'block';
+        if (guideText) guideText.style.display = 'none';
+        sounds.playCorrect();
+      } else {
+        btnText.innerText = '補齊另一半對稱圖形';
+        if (rightGroup) rightGroup.style.display = 'none';
+        if (guideText) guideText.style.display = 'block';
+      }
+    }
+
+    function startGame() {
+      sounds.init();
+      STATE.isPlaying = true;
+      STATE.isAnswerLocked = false;
+      STATE.remainingTime = STATE.gameDuration;
+      STATE.hearts = 3;
+      STATE.score = 0;
+      STATE.correctCount = 0;
+      STATE.wrongCount = 0;
+      STATE.currentQuestionIndex = 0;
+
+      STATE.shuffledQuestions = [...QUESTION_BANK].sort(() => Math.random() - 0.5);
+
+      document.getElementById('game-start-view').classList.add('hidden');
+      document.getElementById('game-over-view').classList.add('hidden');
+      document.getElementById('game-play-view').classList.remove('hidden');
+
+      updateHeartsUI();
+      updateGameStatsUI();
+      renderCurrentQuestion();
+
+      clearInterval(STATE.timerInterval);
+      STATE.timerInterval = setInterval(() => {
+        STATE.remainingTime--;
+        updateTimerDisplay();
+
+        if (STATE.remainingTime <= 0) {
+          endGame('時間到！已完成 2 分鐘限時挑戰！');
+        }
+      }, 1000);
+      updateTimerDisplay();
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(STATE.remainingTime / 60);
+      const secs = STATE.remainingTime % 60;
+      const str = `${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+      document.getElementById('game-timer').innerText = str;
+
+      const pct = (STATE.remainingTime / STATE.gameDuration) * 100;
+      document.getElementById('time-progress-bar').style.width = `${pct}%`;
+
+      if (STATE.remainingTime <= 20) {
+        document.getElementById('game-timer').classList.add('text-rose-600', 'animate-pulse');
+      } else {
+        document.getElementById('game-timer').classList.remove('animate-pulse');
+      }
+    }
+
+    function renderCurrentQuestion() {
+      STATE.isAnswerLocked = false;
+      if (STATE.currentQuestionIndex >= STATE.shuffledQuestions.length) {
+        STATE.shuffledQuestions = [...QUESTION_BANK].sort(() => Math.random() - 0.5);
+        STATE.currentQuestionIndex = 0;
+      }
+
+      const curQ = STATE.shuffledQuestions[STATE.currentQuestionIndex];
+      document.getElementById('question-category').innerText = curQ.category;
+      document.getElementById('question-index-tag').innerText = `第 ${STATE.correctCount + STATE.wrongCount + 1} 題`;
+      document.getElementById('question-text').innerText = curQ.q;
+
+      const grid = document.getElementById('options-grid');
+      grid.innerHTML = '';
+
+      curQ.options.forEach((optText, idx) => {
+        const btn = document.createElement('button');
+        btn.id = `opt-btn-${idx}`;
+        btn.className = 'opt-btn btn-touch w-full min-h-[64px] p-4 text-left font-bold text-lg md:text-xl rounded-2xl bg-slate-50 hover:bg-indigo-50 border-2 border-slate-300 hover:border-indigo-500 text-slate-800 transition-all flex items-center gap-3 shadow-sm';
+        btn.innerHTML = `
+          <span class="badge-idx w-9 h-9 rounded-xl bg-slate-200 text-slate-700 flex items-center justify-center font-mono font-black text-base flex-shrink-0">
+            ${['A', 'B', 'C', 'D'][idx]}
+          </span>
+          <span class="flex-1">${optText}</span>
+        `;
+        btn.onclick = () => handleAnswer(idx);
+        grid.appendChild(btn);
+      });
+    }
+
+    function handleAnswer(selectedIndex) {
+      if (!STATE.isPlaying || STATE.isAnswerLocked) return;
+      STATE.isAnswerLocked = true;
+
+      const curQ = STATE.shuffledQuestions[STATE.currentQuestionIndex];
+      const feedback = document.getElementById('instant-feedback');
+      const selectedBtn = document.getElementById(`opt-btn-${selectedIndex}`);
+      const correctBtn = document.getElementById(`opt-btn-${curQ.ans}`);
+
+      if (selectedIndex === curQ.ans) {
+        sounds.playCorrect();
+        STATE.score += 10;
+        STATE.correctCount++;
+        feedback.innerText = '✨ 答對了！數感敏銳度超高！';
+        feedback.className = 'text-center font-black text-xl py-2 rounded-xl text-emerald-600 bg-emerald-50 border border-emerald-200 opacity-100';
+
+        if (selectedBtn) {
+          selectedBtn.classList.remove('bg-slate-50', 'border-slate-300');
+          selectedBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
+        }
+      } else {
+        sounds.playWrong();
+        STATE.wrongCount++;
+        STATE.hearts--;
+        updateHeartsUI();
+        feedback.innerText = `❌ 答錯囉！正確答案是：${['A', 'B', 'C', 'D'][curQ.ans]}`;
+        feedback.className = 'text-center font-black text-xl py-2 rounded-xl text-rose-600 bg-rose-50 border border-rose-200 opacity-100';
+
+        if (selectedBtn) {
+          selectedBtn.classList.remove('bg-slate-50', 'border-slate-300');
+          selectedBtn.classList.add('bg-rose-100', 'border-rose-500', 'text-rose-900');
+        }
+        if (correctBtn) {
+          correctBtn.classList.remove('bg-slate-50', 'border-slate-300');
+          correctBtn.classList.add('bg-emerald-100', 'border-emerald-500', 'text-emerald-900');
         }
 
-        function toggleMuteAudio() {
-            appState.audioMuted = !appState.audioMuted;
-            const icon = document.getElementById('soundIcon');
-            const btn = document.getElementById('soundToggleBtn');
-            if (appState.audioMuted) {
-                icon.className = 'fa-solid fa-volume-xmark text-slate-400';
-                showToast('已關閉遊戲音效');
-            } else {
-                icon.className = 'fa-solid fa-volume-high text-white';
-                showToast('已開啟遊戲音效');
-                playSound('correct');
-            }
+        if (STATE.hearts <= 0) {
+          setTimeout(() => {
+            endGame('答題錯誤三次，生命值歸零，終止遊戲！');
+          }, 600);
+          return;
         }
+      }
 
-        // Window onload initialization
-        window.onload = function() {
-            initQRCode();
-            initActivity2Canvas();
-            initKaleidoscopeCanvas();
-            window.addEventListener('resize', handleCanvasResize);
+      updateGameStatsUI();
 
-            // 支援鍵盤 ESC 關閉所有彈窗
-            window.addEventListener('keydown', function(e) {
-                if (e.key === 'Escape') {
-                    ['qrModal', 'guideModal', 'previewModal', 'clearConfirmModal'].forEach(id => {
-                        const m = document.getElementById(id);
-                        if (m && !m.classList.contains('hidden')) {
-                            m.classList.add('hidden');
-                        }
-                    });
-                }
-            });
-        };
-
-        // 活動分頁切換
-        function switchActivity(actNum) {
-            for (let i = 1; i <= 5; i++) {
-                const actSection = document.getElementById(`activity${i}`);
-                const tabBtn = document.getElementById(`tabBtn${i}`);
-                
-                if (actSection) {
-                    if (i === actNum) {
-                        actSection.classList.remove('hidden');
-                    } else {
-                        actSection.classList.add('hidden');
-                    }
-                }
-
-                if (tabBtn) {
-                    if (i === actNum) {
-                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-indigo-600 text-white shadow-md active:scale-95";
-                    } else {
-                        tabBtn.className = "py-3.5 px-2 rounded-2xl text-base md:text-lg font-black transition flex items-center justify-center gap-2 bg-slate-100 text-slate-600 hover:bg-slate-200 active:scale-95 relative";
-                    }
-                }
-            }
-
-            if (actNum === 2) {
-                setTimeout(resizeCanvas2, 80);
-            } else if (actNum === 3) {
-                setTimeout(resizeKaleidoscope, 80);
-            }
+      STATE.currentQuestionIndex++;
+      setTimeout(() => {
+        feedback.className = 'text-center font-black text-xl py-2 rounded-xl opacity-0';
+        if (STATE.isPlaying) {
+          renderCurrentQuestion();
         }
+      }, 750);
+    }
 
-        function toggleModal(modalId) {
-            const modal = document.getElementById(modalId);
-            if (modal) {
-                modal.classList.toggle('hidden');
-            }
+    function updateHeartsUI() {
+      for (let i = 1; i <= 3; i++) {
+        const heartEl = document.getElementById(`heart-${i}`);
+        if (i <= STATE.hearts) {
+          heartEl.className = 'fa-solid fa-heart text-rose-500 transition-all scale-100';
+        } else {
+          heartEl.className = 'fa-regular fa-heart text-slate-300 transition-all scale-90';
         }
+      }
+    }
 
-        // 全螢幕功能切換 (相容 iOS WebKit 與標準 API)
-        function toggleFullscreen() {
-            const icon = document.getElementById('fullscreenIcon');
-            const docEl = document.documentElement;
+    function updateGameStatsUI() {
+      document.getElementById('game-score').innerText = STATE.score;
+      document.getElementById('game-correct-count').innerText = STATE.correctCount;
+    }
 
-            if (!document.fullscreenElement && !document.webkitFullscreenElement) {
-                if (docEl.requestFullscreen) {
-                    docEl.requestFullscreen().catch(() => showToast('目前環境無法啟用全螢幕'));
-                } else if (docEl.webkitRequestFullscreen) {
-                    docEl.webkitRequestFullscreen();
-                }
-                if (icon) icon.className = 'fa-solid fa-compress';
-            } else {
-                if (document.exitFullscreen) {
-                    document.exitFullscreen();
-                } else if (document.webkitExitFullscreen) {
-                    document.webkitExitFullscreen();
-                }
-                if (icon) icon.className = 'fa-solid fa-expand';
-            }
+    function endGame(reason) {
+      STATE.isPlaying = false;
+      clearInterval(STATE.timerInterval);
+      sounds.playGameOver();
+
+      document.getElementById('game-play-view').classList.add('hidden');
+      document.getElementById('game-over-view').classList.remove('hidden');
+
+      document.getElementById('game-over-reason').innerText = reason;
+      document.getElementById('result-score').innerText = STATE.score;
+      document.getElementById('result-correct').innerText = STATE.correctCount;
+      document.getElementById('result-wrong').innerText = STATE.wrongCount;
+
+      const icon = document.getElementById('game-over-icon');
+      if (STATE.score >= 60) {
+        icon.className = 'fa-solid fa-trophy text-amber-500';
+      } else {
+        icon.className = 'fa-solid fa-shield-halved text-indigo-500';
+      }
+
+      syncResultsToORID();
+    }
+
+    function syncResultsToORID() {
+      STATE.studentClass = document.getElementById('class-select').value;
+      STATE.studentSeat = document.getElementById('seat-select').value;
+      STATE.studentName = document.getElementById('student-name').value || '野比大雄';
+
+      document.getElementById('card-class').innerText = STATE.studentClass;
+      document.getElementById('card-seat').innerText = STATE.studentSeat;
+      document.getElementById('card-name').innerText = STATE.studentName;
+      document.getElementById('card-score').innerText = STATE.score;
+
+      const objectiveText = document.getElementById('orid-o');
+      if (objectiveText) {
+        objectiveText.value = `在伊斯蘭幾何紋樣中觀察到正多邊形、八角星與十二芒星持續藉由旋轉與鏡射密鋪；在自然界鹿角蕨中發現左右對稱的葉脈結構。在限時挑戰中累計獲得 ${STATE.score} 分，答對 ${STATE.correctCount} 題，克服對稱軸辨認挑戰。`;
+      }
+    }
+
+    function openQrModal() {
+      const modal = document.getElementById('modal-qr');
+      const box = document.getElementById('qrcode-box');
+      const urlText = document.getElementById('current-page-url');
+      
+      let currentUrl = window.location.href;
+      if (!currentUrl || currentUrl.startsWith('about:') || currentUrl.startsWith('blob:')) {
+        currentUrl = 'https://math-sense-lab.edu.tw/patterns';
+      }
+
+      box.innerHTML = '';
+      urlText.innerText = currentUrl;
+
+      try {
+        if (typeof QRCode !== 'undefined') {
+          new QRCode(box, {
+            text: currentUrl,
+            width: 200,
+            height: 200,
+            colorDark: "#1e1b4b",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
+          });
+        } else {
+          throw new Error('QRCode lib not loaded');
         }
+      } catch (e) {
+        box.innerHTML = `<img src="https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(currentUrl)}" alt="QR Code" class="w-full h-full object-contain">`;
+      }
 
-        // 監聽全螢幕變化事件以保持圖示一致
-        document.addEventListener('fullscreenchange', syncFullscreenIcon);
-        document.addEventListener('webkitfullscreenchange', syncFullscreenIcon);
-        function syncFullscreenIcon() {
-            const icon = document.getElementById('fullscreenIcon');
-            if (icon) {
-                if (document.fullscreenElement || document.webkitFullscreenElement) {
-                    icon.className = 'fa-solid fa-compress';
-                } else {
-                    icon.className = 'fa-solid fa-expand';
-                }
-            }
+      modal.classList.remove('hidden');
+    }
+
+    function closeQrModal() {
+      document.getElementById('modal-qr').classList.add('hidden');
+      document.getElementById('copy-success-tip').classList.add('hidden');
+    }
+
+    function closePreviewModal() {
+      document.getElementById('modal-preview').classList.add('hidden');
+    }
+
+    function copyCurrentUrl() {
+      let url = window.location.href;
+      if (!url || url.startsWith('about:') || url.startsWith('blob:')) {
+        url = 'https://math-sense-lab.edu.tw/patterns';
+      }
+      const btnText = document.getElementById('copy-btn-text');
+      const tip = document.getElementById('copy-success-tip');
+
+      const tempInput = document.createElement('input');
+      tempInput.style.position = 'fixed';
+      tempInput.style.opacity = '0';
+      tempInput.value = url;
+      document.body.appendChild(tempInput);
+      tempInput.select();
+      
+      try {
+        const successful = document.execCommand('copy');
+        if (successful) {
+          tip.classList.remove('hidden');
+          btnText.innerText = '已成功複製網址！';
+          setTimeout(() => {
+            btnText.innerText = '一鍵複製網址 (備用)';
+            tip.classList.add('hidden');
+          }, 3000);
         }
+      } catch (err) {
+        console.error('複製失敗', err);
+      } finally {
+        document.body.removeChild(tempInput);
+      }
+    }
 
-        // 動態生成 QR Code
-        function initQRCode() {
-            const qrContainer = document.getElementById('qrcodeCanvas');
-            if (!qrContainer) return;
-            qrContainer.innerHTML = '';
-            let currentUrl = window.location.href;
-            if (currentUrl.startsWith('about:') || currentUrl.startsWith('blob:')) {
-                currentUrl = 'https://math-sense.edu.tw';
-            }
-            try {
-                new QRCode(qrContainer, {
-                    text: currentUrl,
-                    width: 190,
-                    height: 190,
-                    colorDark: "#1e1b4b",
-                    colorLight: "#ffffff",
-                    correctLevel: QRCode.CorrectLevel.H
-                });
-            } catch (err) {
-                qrContainer.innerHTML = `<img src="https://quickchart.io/qr?text=${encodeURIComponent(currentUrl)}&size=190" alt="QR Code" class="rounded-lg shadow">`;
-            }
+    function openGuideModal() {
+      document.getElementById('modal-guide').classList.remove('hidden');
+    }
+    function closeGuideModal() {
+      document.getElementById('modal-guide').classList.add('hidden');
+    }
+
+    function toggleFullScreen() {
+      const doc = window.document;
+      const docEl = doc.documentElement;
+
+      const requestFullScreen = docEl.requestFullscreen || docEl.webkitRequestFullscreen || docEl.mozRequestFullScreen || docEl.msRequestFullscreen;
+      const cancelFullScreen = doc.exitFullscreen || doc.webkitExitFullscreen || doc.mozCancelFullScreen || doc.msExitFullscreen;
+
+      const isFullScreen = doc.fullscreenElement || doc.webkitFullscreenElement || doc.mozFullScreenElement || doc.msFullscreenElement;
+
+      if (!isFullScreen) {
+        if (requestFullScreen) {
+          requestFullScreen.call(docEl).catch(err => console.debug('Fullscreen error:', err));
         }
-
-        // 一鍵複製網址功能
-        function copyCurrentURL() {
-            const urlToCopy = window.location.href;
-            if (navigator.clipboard && window.isSecureContext) {
-                navigator.clipboard.writeText(urlToCopy).then(showCopySuccess).catch(fallbackCopy);
-            } else {
-                fallbackCopy();
-            }
+      } else {
+        if (cancelFullScreen) {
+          cancelFullScreen.call(doc).catch(err => console.debug('Exit fullscreen error:', err));
         }
+      }
+    }
 
-        function fallbackCopy() {
-            const dummy = document.createElement('input');
-            document.body.appendChild(dummy);
-            dummy.value = window.location.href;
-            dummy.select();
-            document.execCommand('copy');
-            document.body.removeChild(dummy);
-            showCopySuccess();
+    function updateFullScreenIcon() {
+      const isFullScreen = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+      const icon = document.getElementById('fullscreen-icon');
+      const tip = document.getElementById('fullscreen-tip');
+      if (icon && tip) {
+        if (isFullScreen) {
+          icon.className = 'fa-solid fa-compress';
+          tip.innerText = '退出全螢幕顯示';
+        } else {
+          icon.className = 'fa-solid fa-expand';
+          tip.innerText = '切換全螢幕顯示';
         }
+      }
+    }
+    document.addEventListener('fullscreenchange', updateFullScreenIcon);
+    document.addEventListener('webkitfullscreenchange', updateFullScreenIcon);
 
-        function showCopySuccess() {
-            const alertText = document.getElementById('copyAlert');
-            if (alertText) {
-                alertText.style.opacity = '1';
-                setTimeout(() => { alertText.style.opacity = '0'; }, 2200);
-            }
-            showToast('已成功複製網址！');
+    function exportResultToImage() {
+      syncResultsToORID();
+      const canvas = document.getElementById('export-canvas');
+      const ctx = canvas.getContext('2d');
+
+      ctx.fillStyle = "#ffffff";
+      ctx.fillRect(0, 0, 1200, 960);
+
+      ctx.lineWidth = 14;
+      ctx.strokeStyle = "#4338ca";
+      ctx.strokeRect(10, 10, 1180, 940);
+
+      const headerGrad = ctx.createLinearGradient(0, 0, 1200, 0);
+      headerGrad.addColorStop(0, "#3730a3");
+      headerGrad.addColorStop(1, "#4f46e5");
+      ctx.fillStyle = headerGrad;
+      ctx.fillRect(17, 17, 1166, 130);
+
+      ctx.fillStyle = "#fbbf24";
+      ctx.font = "bold 20px 'Noto Sans TC', sans-serif";
+      ctx.fillText("數感實驗室 • 校定跨領域幾何課程", 50, 58);
+
+      ctx.fillStyle = "#ffffff";
+      ctx.font = "900 42px 'Noto Sans TC', sans-serif";
+      ctx.fillText("「規律的視覺美感」探究證書", 50, 110);
+
+      ctx.fillStyle = "#f8fafc";
+      ctx.fillRect(40, 170, 1120, 90);
+      ctx.lineWidth = 2;
+      ctx.strokeStyle = "#cbd5e1";
+      ctx.strokeRect(40, 170, 1120, 90);
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "bold 16px 'Noto Sans TC', sans-serif";
+      ctx.fillText("班級座號", 70, 205);
+      ctx.fillText("學生姓名", 400, 205);
+      ctx.fillText("數感挑戰積分", 730, 205);
+      ctx.fillText("評定等第", 970, 205);
+
+      ctx.fillStyle = "#1e293b";
+      ctx.font = "900 28px 'Noto Sans TC', sans-serif";
+      ctx.fillText(`${STATE.studentClass} ${STATE.studentSeat}`, 70, 242);
+      ctx.fillText(STATE.studentName, 400, 242);
+
+      ctx.fillStyle = "#4338ca";
+      ctx.font = "900 32px 'Noto Sans TC', sans-serif";
+      ctx.fillText(`${STATE.score} 分`, 730, 244);
+
+      ctx.fillStyle = "#059669";
+      ctx.fillText(STATE.score >= 80 ? "精熟卓越" : (STATE.score >= 50 ? "通過良好" : "持續精進"), 970, 244);
+
+      const oridData = [
+        { key: "O", title: "客觀事實 (Objective)", text: document.getElementById('orid-o').value, color: "#e0e7ff", border: "#6366f1", textColor: "#312e81" },
+        { key: "R", title: "感受反應 (Reflective)", text: document.getElementById('orid-r').value, color: "#fef3c7", border: "#f59e0b", textColor: "#78350f" },
+        { key: "I", title: "詮釋意義 (Interpretive)", text: document.getElementById('orid-i').value, color: "#d1fae5", border: "#10b981", textColor: "#064e3b" },
+        { key: "D", title: "做出決定 (Decisional)", text: document.getElementById('orid-d').value, color: "#f3e8ff", border: "#a855f7", textColor: "#581c87" }
+      ];
+
+      const boxW = 540;
+      const boxH = 260;
+      const positions = [
+        { x: 40, y: 280 },
+        { x: 620, y: 280 },
+        { x: 40, y: 560 },
+        { x: 620, y: 560 }
+      ];
+
+      oridData.forEach((item, i) => {
+        const pos = positions[i];
+        
+        ctx.fillStyle = item.color;
+        ctx.fillRect(pos.x, pos.y, boxW, boxH);
+        ctx.lineWidth = 2.5;
+        ctx.strokeStyle = item.border;
+        ctx.strokeRect(pos.x, pos.y, boxW, boxH);
+
+        ctx.fillStyle = item.border;
+        ctx.fillRect(pos.x + 18, pos.y + 18, 36, 36);
+        ctx.fillStyle = "#ffffff";
+        ctx.font = "bold 22px 'Noto Sans TC', sans-serif";
+        ctx.fillText(item.key, pos.x + 28, pos.y + 44);
+
+        ctx.fillStyle = item.textColor;
+        ctx.font = "900 20px 'Noto Sans TC', sans-serif";
+        ctx.fillText(item.title, pos.x + 64, pos.y + 43);
+
+        ctx.fillStyle = "#334155";
+        ctx.font = "500 17px 'Noto Sans TC', sans-serif";
+        wrapText(ctx, item.text, pos.x + 20, pos.y + 85, boxW - 40, 26);
+      });
+
+      ctx.fillStyle = "#64748b";
+      ctx.font = "bold 16px 'Noto Sans TC', sans-serif";
+      const now = new Date();
+      const dateStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+      ctx.fillText(`核發日期：${dateStr} | 數感實驗室 互動學習系統 | 教材設計：S.C. Kuo`, 40, 895);
+
+      ctx.save();
+      ctx.translate(1060, 870);
+      ctx.beginPath();
+      ctx.arc(0, 0, 48, 0, Math.PI * 2);
+      ctx.lineWidth = 3;
+      ctx.strokeStyle = "#dc2626";
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.arc(0, 0, 43, 0, Math.PI * 2);
+      ctx.lineWidth = 1;
+      ctx.stroke();
+
+      ctx.fillStyle = "#dc2626";
+      ctx.font = "900 13px 'Noto Sans TC', sans-serif";
+      ctx.textAlign = "center";
+      ctx.fillText("數感美學認證", 0, -8);
+      ctx.fillText("★ 檢驗合格 ★", 0, 10);
+      ctx.font = "bold 10px sans-serif";
+      ctx.fillText("OFFICIAL SEAL", 0, 26);
+      ctx.restore();
+
+      const dataUrl = canvas.toDataURL('image/png');
+      const link = document.createElement('a');
+      link.download = `數感美學證書_${STATE.studentClass}_${STATE.studentSeat}_${STATE.studentName}.png`;
+      link.href = dataUrl;
+      link.click();
+
+      document.getElementById('preview-image').src = dataUrl;
+      document.getElementById('modal-preview').classList.remove('hidden');
+    }
+
+    function wrapText(ctx, text, x, y, maxWidth, lineHeight) {
+      const words = text.split('');
+      let line = '';
+      for (let n = 0; n < words.length; n++) {
+        const testLine = line + words[n];
+        const metrics = ctx.measureText(testLine);
+        const testWidth = metrics.width;
+        if (testWidth > maxWidth && n > 0) {
+          ctx.fillText(line, x, y);
+          line = words[n];
+          y += lineHeight;
+        } else {
+          line = testLine;
         }
+      }
+      ctx.fillText(line, x, y);
+    }
 
-        // 活動一動畫獨立點擊切換 (修復互相干擾的 bug)
-        function toggleSingleAnimation(elementId, statusId) {
-            const el = document.getElementById(elementId);
-            const status = document.getElementById(statusId);
-            if (!el) return;
+    function initApp() {
+      const classSelect = document.getElementById('class-select');
+      const chineseNums = ["一", "二", "三", "四", "五", "六", "七", "八", "九", "十", "十一", "十二", "十三", "十四"];
+      classSelect.innerHTML = '';
+      chineseNums.forEach(num => {
+        const opt = document.createElement('option');
+        opt.value = `五年${num}班`;
+        opt.innerText = `五年${num}班`;
+        if (num === "一") opt.selected = true;
+        classSelect.appendChild(opt);
+      });
 
-            const isPaused = el.classList.toggle('animation-paused');
-            if (status) {
-                status.innerText = isPaused ? '已暫停 (點擊播放)' : '播放中 (點擊暫停)';
-                status.className = isPaused 
-                    ? 'absolute bottom-2 right-2 bg-slate-700 text-white text-xs px-2.5 py-1 rounded-lg font-bold'
-                    : 'absolute bottom-2 right-2 bg-indigo-600 text-white text-xs px-2.5 py-1 rounded-lg font-bold';
-            }
+      const seatSelect = document.getElementById('seat-select');
+      seatSelect.innerHTML = '';
+      for (let i = 1; i <= 28; i++) {
+        const opt = document.createElement('option');
+        opt.value = `${i}號`;
+        opt.innerText = `${i} 號`;
+        if (i === 28) opt.selected = true;
+        seatSelect.appendChild(opt);
+      }
+
+      document.getElementById('student-name').value = "野比大雄";
+
+      classSelect.addEventListener('change', syncResultsToORID);
+      seatSelect.addEventListener('change', syncResultsToORID);
+      document.getElementById('student-name').addEventListener('input', syncResultsToORID);
+
+      window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape') {
+          closeQrModal();
+          closeGuideModal();
+          closePreviewModal();
         }
-
-        // ==================== 活動二 Canvas 對稱解碼 ====================
-        let canvas2, ctx2;
-        let isDrawing2 = false;
-        let startX2 = 0, startY2 = 0;
-        let drawnShapes2 = [];
-
-        function initActivity2Canvas() {
-            canvas2 = document.getElementById('canvas2');
-            if (!canvas2) return;
-            ctx2 = canvas2.getContext('2d');
-
-            canvas2.addEventListener('pointerdown', handlePointerDown2);
-            canvas2.addEventListener('pointermove', handlePointerMove2);
-            canvas2.addEventListener('pointerup', handlePointerUp2);
-            canvas2.addEventListener('pointerleave', handlePointerUp2);
-
-            resizeCanvas2();
-        }
-
-        function resizeCanvas2() {
-            if (!canvas2) return;
-            const parent = canvas2.parentElement;
-            const dpr = window.devicePixelRatio || 1;
-            canvas2.width = parent.clientWidth * dpr;
-            canvas2.height = parent.clientHeight * dpr;
-            canvas2.style.width = `${parent.clientWidth}px`;
-            canvas2.style.height = `${parent.clientHeight}px`;
-            ctx2.scale(dpr, dpr);
-            redrawCanvas2();
-        }
-
-        function setActivity2Mode(mode) {
-            appState.act2Mode = mode;
-            document.getElementById('modeTileBtn').className = mode === 'tile' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
-            document.getElementById('modeFernBtn').className = mode === 'fern' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
-            document.getElementById('modeHalfBtn').className = mode === 'half' ? 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-indigo-600 text-white shadow-md active:scale-95 transition' : 'flex-1 px-4 py-3 rounded-2xl font-black text-base md:text-lg bg-slate-100 text-slate-700 hover:bg-slate-200 active:scale-95 transition';
-
-            const inst = document.getElementById('act2Instructions');
-            if (mode === 'tile') {
-                inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>請標示伊斯蘭幾何紋樣的對稱軸（金線）與旋轉中心點（紅點）！</span>`;
-            } else if (mode === 'fern') {
-                inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>請標示自然鹿角蕨的主對稱軸，觀察生命生長的有機對稱！</span>`;
-            } else {
-                inst.innerHTML = `<i class="fa-solid fa-bullseye text-2xl text-amber-600"></i><span>半成品挑戰：左側已提供一半幾何，請劃出對稱軸並想像另一半！</span>`;
-            }
-
-            clearCanvas2();
-        }
-
-        function setDrawTool(tool) {
-            appState.act2Tool = tool;
-            document.getElementById('toolAxisBtn').className = tool === 'axis' ? 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
-            document.getElementById('toolCenterBtn').className = tool === 'center' ? 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-amber-400 text-indigo-950 shadow border-2 border-amber-500 active:scale-95 transition' : 'px-4 py-2.5 rounded-xl font-bold text-base md:text-lg bg-white text-slate-700 hover:bg-slate-200 border border-slate-300 active:scale-95 transition';
-        }
-
-        function toggleGridOverlay() {
-            appState.showGrid = !appState.showGrid;
-            document.getElementById('gridToggleText').innerText = appState.showGrid ? '隱藏透明網格' : '顯示透明網格';
-            redrawCanvas2();
-        }
-
-        function undoCanvas2() {
-            if (drawnShapes2.length > 0) {
-                drawnShapes2.pop();
-                redrawCanvas2();
-                showToast('已復原上一個標記');
-            }
-        }
-
-        function clearCanvas2() {
-            drawnShapes2 = [];
-            redrawCanvas2();
-        }
-
-        function handlePointerDown2(e) {
-            const rect = canvas2.getBoundingClientRect();
-            startX2 = e.clientX - rect.left;
-            startY2 = e.clientY - rect.top;
-
-            if (appState.act2Tool === 'center') {
-                drawnShapes2.push({ type: 'center', x: startX2, y: startY2 });
-                appState.drawCount++;
-                redrawCanvas2();
-            } else {
-                isDrawing2 = true;
-            }
-        }
-
-        function handlePointerMove2(e) {
-            if (!isDrawing2) return;
-            const rect = canvas2.getBoundingClientRect();
-            const currentX = e.clientX - rect.left;
-            const currentY = e.clientY - rect.top;
-
-            redrawCanvas2();
-            ctx2.beginPath();
-            ctx2.moveTo(startX2, startY2);
-            ctx2.lineTo(currentX, currentY);
-            ctx2.strokeStyle = '#f59e0b';
-            ctx2.lineWidth = 5;
-            ctx2.setLineDash([8, 8]);
-            ctx2.stroke();
-            ctx2.setLineDash([]);
-        }
-
-        function handlePointerUp2(e) {
-            if (!isDrawing2) return;
-            isDrawing2 = false;
-            const rect = canvas2.getBoundingClientRect();
-            const endX = e.clientX - rect.left;
-            const endY = e.clientY - rect.top;
-
-            if (Math.hypot(endX - startX2, endY - startY2) > 5) {
-                drawnShapes2.push({ type: 'axis', x1: startX2, y1: startY2, x2: endX, y2: endY });
-                appState.drawCount++;
-            }
-            redrawCanvas2();
-        }
-
-        function redrawCanvas2() {
-            if (!ctx2) return;
-            const w = canvas2.parentElement.clientWidth;
-            const h = canvas2.parentElement.clientHeight;
-            const cx = w / 2;
-            const cy = h / 2;
-
-            ctx2.clearRect(0, 0, w, h);
-
-            if (appState.act2Mode === 'tile') {
-                drawIslamicTileBackground(ctx2, cx, cy);
-            } else if (appState.act2Mode === 'fern') {
-                drawFernBackground(ctx2, cx, cy);
-            } else if (appState.act2Mode === 'half') {
-                drawHalfPatternBackground(ctx2, cx, cy);
-            }
-
-            if (appState.showGrid) {
-                drawTransparentGrid(ctx2, w, h);
-            }
-
-            drawnShapes2.forEach(shape => {
-                if (shape.type === 'axis') {
-                    ctx2.beginPath();
-                    ctx2.moveTo(shape.x1, shape.y1);
-                    ctx2.lineTo(shape.x2, shape.y2);
-                    ctx2.strokeStyle = '#f59e0b';
-                    ctx2.lineWidth = 5;
-                    ctx2.setLineDash([8, 8]);
-                    ctx2.stroke();
-                    ctx2.setLineDash([]);
-                } else if (shape.type === 'center') {
-                    ctx2.beginPath();
-                    ctx2.arc(shape.x, shape.y, 11, 0, Math.PI * 2);
-                    ctx2.fillStyle = '#ef4444';
-                    ctx2.fill();
-                    ctx2.strokeStyle = '#ffffff';
-                    ctx2.lineWidth = 3;
-                    ctx2.stroke();
-                }
-            });
-        }
-
-        function drawTransparentGrid(ctx, w, h) {
-            ctx.save();
-            ctx.strokeStyle = 'rgba(255, 255, 255, 0.15)';
-            ctx.lineWidth = 1;
-            const gridSize = 32;
-            for (let x = 0; x <= w; x += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(x, 0);
-                ctx.lineTo(x, h);
-                ctx.stroke();
-            }
-            for (let y = 0; y <= h; y += gridSize) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(w, y);
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        function drawIslamicTileBackground(ctx, cx, cy) {
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.strokeStyle = '#818cf8';
-            ctx.lineWidth = 4;
-
-            for (let i = 0; i < 8; i++) {
-                ctx.rotate(Math.PI / 4);
-                ctx.beginPath();
-                ctx.rect(-75, -75, 150, 150);
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        function drawFernBackground(ctx, cx, cy) {
-            ctx.save();
-            ctx.translate(cx, cy);
-            ctx.strokeStyle = '#34d399';
-            ctx.lineWidth = 4;
-
-            ctx.beginPath();
-            ctx.moveTo(0, 150);
-            ctx.quadraticCurveTo(-25, 0, 0, -150);
-            ctx.quadraticCurveTo(25, 0, 0, 150);
-            ctx.stroke();
-
-            for (let y = -100; y <= 100; y += 40) {
-                ctx.beginPath();
-                ctx.moveTo(0, y);
-                ctx.lineTo(-65, y - 25);
-                ctx.moveTo(0, y);
-                ctx.lineTo(65, y - 25);
-                ctx.stroke();
-            }
-            ctx.restore();
-        }
-
-        function drawHalfPatternBackground(ctx, cx, cy) {
-            ctx.save();
-            ctx.strokeStyle = '#f59e0b';
-            ctx.lineWidth = 3;
-            ctx.setLineDash([8, 8]);
-            ctx.beginPath();
-            ctx.moveTo(cx, 0);
-            ctx.lineTo(cx, canvas2.parentElement.clientHeight);
-            ctx.stroke();
-            ctx.setLineDash([]);
-
-            ctx.translate(cx, cy);
-            ctx.strokeStyle = '#60a5fa';
-            ctx.lineWidth = 5;
-
-            ctx.beginPath();
-            ctx.moveTo(0, -120);
-            ctx.lineTo(-100, -60);
-            ctx.lineTo(-50, 0);
-            ctx.lineTo(-115, 60);
-            ctx.lineTo(0, 120);
-            ctx.stroke();
-
-            ctx.restore();
-        }
-
-        // ==================== 活動三 萬花筒畫板 ====================
-        let kCanvas, kCtx;
-        let isKDrawing = false;
-        let kPrevX = 0, kPrevY = 0;
-
-        function initKaleidoscopeCanvas() {
-            kCanvas = document.getElementById('kaleidoscopeCanvas');
-            if (!kCanvas) return;
-            kCtx = kCanvas.getContext('2d');
-
-            kCanvas.addEventListener('pointerdown', startKDraw);
-            kCanvas.addEventListener('pointermove', drawKaleidoscope);
-            kCanvas.addEventListener('pointerup', stopKDraw);
-            kCanvas.addEventListener('pointerleave', stopKDraw);
-
-            resizeKaleidoscope();
-        }
-
-        function resizeKaleidoscope() {
-            if (!kCanvas) return;
-            const parent = kCanvas.parentElement;
-            const dpr = window.devicePixelRatio || 1;
-            kCanvas.width = parent.clientWidth * dpr;
-            kCanvas.height = parent.clientHeight * dpr;
-            kCanvas.style.width = `${parent.clientWidth}px`;
-            kCanvas.style.height = `${parent.clientHeight}px`;
-            kCtx.scale(dpr, dpr);
-            clearKaleidoscope();
-        }
-
-        function setPenColor(color) {
-            appState.penColor = color;
-        }
-
-        function setPenWidth(w) {
-            appState.penWidth = w;
-        }
-
-        function clearKaleidoscope() {
-            if (!kCtx) return;
-            const w = kCanvas.parentElement.clientWidth;
-            const h = kCanvas.parentElement.clientHeight;
-            kCtx.fillStyle = '#020617';
-            kCtx.fillRect(0, 0, w, h);
-            drawKaleidoscopeSlices();
-        }
-
-        function drawKaleidoscopeSlices() {
-            const w = kCanvas.parentElement.clientWidth;
-            const h = kCanvas.parentElement.clientHeight;
-            const cx = w / 2;
-            const cy = h / 2;
-            const slices = 8;
-            kCtx.save();
-            kCtx.translate(cx, cy);
-            kCtx.strokeStyle = 'rgba(255, 255, 255, 0.12)';
-            kCtx.lineWidth = 1;
-
-            for (let i = 0; i < slices; i++) {
-                kCtx.beginPath();
-                kCtx.moveTo(0, 0);
-                kCtx.lineTo(cx * 1.6, 0);
-                kCtx.stroke();
-                kCtx.rotate((Math.PI * 2) / slices);
-            }
-            kCtx.restore();
-        }
-
-        function startKDraw(e) {
-            isKDrawing = true;
-            const rect = kCanvas.getBoundingClientRect();
-            kPrevX = e.clientX - rect.left - kCanvas.parentElement.clientWidth / 2;
-            kPrevY = e.clientY - rect.top - kCanvas.parentElement.clientHeight / 2;
-        }
-
-        function drawKaleidoscope(e) {
-            if (!isKDrawing) return;
-            const rect = kCanvas.getBoundingClientRect();
-            const currX = e.clientX - rect.left - kCanvas.parentElement.clientWidth / 2;
-            const currY = e.clientY - rect.top - kCanvas.parentElement.clientHeight / 2;
-
-            const slices = 8;
-            const cx = kCanvas.parentElement.clientWidth / 2;
-            const cy = kCanvas.parentElement.clientHeight / 2;
-
-            kCtx.save();
-            kCtx.translate(cx, cy);
-            kCtx.strokeStyle = appState.penColor;
-            kCtx.lineWidth = appState.penWidth;
-            kCtx.lineCap = 'round';
-            kCtx.lineJoin = 'round';
-
-            for (let i = 0; i < slices; i++) {
-                kCtx.rotate((Math.PI * 2) / slices);
-
-                kCtx.beginPath();
-                kCtx.moveTo(kPrevX, kPrevY);
-                kCtx.lineTo(currX, currY);
-                kCtx.stroke();
-
-                kCtx.save();
-                kCtx.scale(1, -1);
-                kCtx.beginPath();
-                kCtx.moveTo(kPrevX, kPrevY);
-                kCtx.lineTo(currX, currY);
-                kCtx.stroke();
-                kCtx.restore();
-            }
-
-            kCtx.restore();
-            kPrevX = currX;
-            kPrevY = currY;
-        }
-
-        function stopKDraw() {
-            isKDrawing = false;
-        }
-
-        // ==================== 挑戰賽：35 題以上高素質幾何題庫 ====================
-        const symmetryQuestionBank = [
-            // 1-10: 線對稱多邊形性質 (S-5-4)
-            {
-                cat: '線對稱幾何',
-                q: '一個標準「正方形」，總共擁有幾條對稱軸？',
-                options: ['4 條', '2 條', '8 條', '無限多條'],
-                ans: 0,
-                hint: '水平、垂直各一條，加上兩條對角線，共 4 條對稱軸！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「長方形（非正方形）」總共有幾條對稱軸？',
-                options: ['2 條', '4 條', '1 條', '0 條'],
-                ans: 0,
-                hint: '長方形只有兩組對邊中點的連線為對稱軸，對角線並不是對稱軸！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '一個「正三角形」，總共有幾條對稱軸？',
-                options: ['3 條', '1 條', '6 條', '無限多條'],
-                ans: 0,
-                hint: '三個頂角到對邊中點的垂直平分線，共有 3 條！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '普通的「平行四邊形（四邊皆不等長）」，總共有幾條對稱軸？',
-                options: ['0 條（非線對稱）', '2 條', '4 條', '1 條'],
-                ans: 0,
-                hint: '一般平行四邊形沿任何直線翻折都無法重合，對稱軸數為 0！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「菱形（非正方形）」的對稱軸有幾條？位置在何處？',
-                options: ['2 條，兩條對角線', '4 條，邊與角', '1 條', '0 條'],
-                ans: 0,
-                hint: '菱形的兩條對角線互相垂直平分，是它的 2 條對稱軸。'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「等腰梯形」總共有幾條對稱軸？',
-                options: ['1 條', '2 條', '4 條', '0 條'],
-                ans: 0,
-                hint: '連接上底中點與下底中點的直線是唯一的對稱軸。'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「正五邊形」總共有幾條對稱軸？',
-                options: ['5 條', '1 條', '10 條', '2 條'],
-                ans: 0,
-                hint: '正 n 邊形（n為奇數）擁有 n 條對稱軸，正五邊形有 5 條。'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「正八邊形」總共有幾條對稱軸？',
-                options: ['8 條', '4 條', '16 條', '6 條'],
-                ans: 0,
-                hint: '正八邊形有 4 條對邊中點連線加上 4 條對角線，共 8 條！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '「圓形」總共擁有幾條對稱軸？',
-                options: ['無限多條', '360 條', '4 條', '100 條'],
-                ans: 0,
-                hint: '只要經過圓心的任何一條直線（直徑），都是圓形的對稱軸！'
-            },
-            {
-                cat: '線對稱幾何',
-                q: '風箏形狀的「箏形（鳶形）」，總共有幾條對稱軸？',
-                options: ['1 條', '2 條', '4 條', '0 條'],
-                ans: 0,
-                hint: '連接兩組鄰邊夾角頂點的主對角線是唯一的對稱軸。'
-            },
-
-            // 11-18: 幾何變換（平移、旋轉、鏡射）
-            {
-                cat: '幾何變換',
-                q: '在線對稱圖形中，連接一組「對稱點」的線段，與對稱軸有何幾何關係？',
-                options: ['互相垂直且被平分', '互相平行', '夾角 45 度', '彼此重疊'],
-                ans: 0,
-                hint: '對稱軸是對稱點連線段的「垂直平分線」！'
-            },
-            {
-                cat: '幾何變換',
-                q: '將圖形沿固定直線方向等距離移動，形狀與大小完全不變，屬於何種變換？',
-                options: ['平移（Translation）', '旋轉（Rotation）', '縮放（Dilation）', '扭曲（Shear）'],
-                ans: 0,
-                hint: '平移是剛體變換的一種，保持圖形的方向性與尺寸。'
-            },
-            {
-                cat: '幾何變換',
-                q: '將幾何圖形沿某一中心點轉動固定度數後重合，屬於何種變換？',
-                options: ['旋轉（Rotation）', '平移（Translation）', '鏡射（Reflection）', '剪切（Shearing）'],
-                ans: 0,
-                hint: '旋轉對稱繞著固定「旋轉中心」等角旋轉。'
-            },
-            {
-                cat: '幾何變換',
-                q: '將圖形沿某一條線翻折 180 度，左右或上下方向相反，稱為？',
-                options: ['鏡射（Reflection）', '平移（Translation）', '拉伸（Stretching）', '投射（Projection）'],
-                ans: 0,
-                hint: '如同鏡子裡的倒影，左右顛倒但距離對稱軸相等。'
-            },
-            {
-                cat: '旋轉對稱',
-                q: '時鐘上的指針從 12 點走到 3 點，以鐘面中心為旋轉中心，順時針旋轉了幾度？',
-                options: ['90 度', '60 度', '180 度', '45 度'],
-                ans: 0,
-                hint: '整圈 360 度除以 4 等分，等於 90 度！'
-            },
-            {
-                cat: '旋轉對稱',
-                q: '時鐘指針從 12 點順時針走到 6 點，旋轉了幾度？',
-                options: ['180 度', '90 度', '270 度', '360 度'],
-                ans: 0,
-                hint: '剛好走完半圈，180 度成一直線。'
-            },
-            {
-                cat: '旋轉對稱',
-                q: '「正六邊形」繞著中心點旋轉，最少旋轉幾度就可以和原圖形完全重合？',
-                options: ['60 度', '90 度', '120 度', '45 度'],
-                ans: 0,
-                hint: '360 度除以 6 個邊，等於 60 度！'
-            },
-            {
-                cat: '旋轉對稱',
-                q: '「正方形」繞著中心點旋轉，最少旋轉幾度會與原形狀重合？',
-                options: ['90 度', '45 度', '180 度', '60 度'],
-                ans: 0,
-                hint: '360 度除以 4 等分，最小旋轉 90 度即可重合。'
-            },
-
-            // 19-26: 生活文字、符號與空間對稱
-            {
-                cat: '文字對稱',
-                q: '下列英文字母中，哪一個同時擁有「水平」與「垂直」兩條對稱軸？',
-                options: ['H', 'A', 'M', 'B'],
-                ans: 0,
-                hint: '字母 H 左右翻折重合，上下對折也完全重合！'
-            },
-            {
-                cat: '文字對稱',
-                q: '下列國字中，哪一個同時擁有「鉛直」與「水平」兩條對稱軸？',
-                options: ['田', '中', '山', '大'],
-                ans: 0,
-                hint: '標準印刷體「田」字左右與上下皆線對稱！'
-            },
-            {
-                cat: '文字對稱',
-                q: '英文字母「A」與「M」具備哪種對稱特性？',
-                options: ['只有 1 條垂直對稱軸', '只有 1 條水平對稱軸', '有 2 條對稱軸', '無對稱軸'],
-                ans: 0,
-                hint: 'A 與 M 都只能沿中間垂直線折疊重合。'
-            },
-            {
-                cat: '生活符號',
-                q: '撲克牌的四種花色「黑桃、紅心、梅花、方塊」中，哪一個有 2 條對稱軸？',
-                options: ['方塊（Diamond）', '黑桃（Spade）', '紅心（Heart）', '梅花（Club）'],
-                ans: 0,
-                hint: '方塊是菱形幾何，具備垂直與水平 2 條對稱軸！'
-            },
-            {
-                cat: '生活符號',
-                q: '常見的紅色「停」車交通標誌（標準正八角形），擁有幾條對稱軸？',
-                options: ['8 條', '4 條', '2 條', '1 條'],
-                ans: 0,
-                hint: '標準正八角形外框擁有 8 條對稱軸。'
-            },
-            {
-                cat: '民間藝術',
-                q: '春節剪紙中常見的「囍（雙喜）」字，主要是運用了哪種對稱原理？',
-                options: ['左右線對稱（鏡射）', '中心旋轉 90 度', '斜向平移', '完全不對稱'],
-                ans: 0,
-                hint: '折疊紙張後剪出一半，展開即形成左右完全重合的線對稱。'
-            },
-            {
-                cat: '旋轉對稱',
-                q: '三葉風力發電機的 3 片葉片，繞中心旋轉幾度會與原位置重合？',
-                options: ['120 度', '90 度', '180 度', '60 度'],
-                ans: 0,
-                hint: '360 度除以 3 等分，等於 120 度！'
-            },
-            {
-                cat: '幾何性質',
-                q: '線對稱圖形中，對稱軸兩側對應的角（對稱角），其角度大小關係為何？',
-                options: ['角度完全相等', '兩角互補', '夾角 90 度', '不一定相等'],
-                ans: 0,
-                hint: '對稱翻折後能完全疊合，因此對稱角必相等、對稱邊也等長。'
-            },
-
-            // 27-35+: 文化建築、自然生態與萬花筒 (跨領域數感美學)
-            {
-                cat: '建築與文化',
-                q: '法國巴黎羅浮宮玻璃金字塔的底面是正方形，側面由四個三角形組成，這是哪種形體？',
-                options: ['正四角錐', '長方體', '四角柱', '圓錐'],
-                ans: 0,
-                hint: '底面是四邊形且側面匯聚於一頂點，為四角錐。'
-            },
-            {
-                cat: '文化幾何',
-                q: '古代伊斯蘭花磚常以八角星形鋪滿牆面不留縫隙，這種數學規律稱為？',
-                options: ['平面鑲嵌（Tessellation）', '立體透視', '隨機排列', '碎形分形'],
-                ans: 0,
-                hint: '使用幾何形狀無空隙、不重疊地鋪滿平面，稱為鑲嵌或密鋪。'
-            },
-            {
-                cat: '自然美學',
-                q: '大自然中的「鹿角蕨」葉片，與人造幾何相比，展現的是哪種對稱美感？',
-                options: ['自然有機對稱', '嚴格人造精準對稱', '完全毫無對稱', '反向旋轉對稱'],
-                ans: 0,
-                hint: '生物葉片展現生長適應的生命力與有機平衡對稱。'
-            },
-            {
-                cat: '自然科學',
-                q: '冬季天空飄落的「雪花結晶」，在顯微鏡下最常見到幾重旋轉對稱？',
-                options: ['6 重旋轉對稱（60度）', '4 重對稱', '8 重對稱', '5 重對稱'],
-                ans: 0,
-                hint: '水分子六方晶系結構，造就雪花優雅的六角六重旋轉對稱。'
-            },
-            {
-                cat: '萬花筒原理',
-                q: '本學習系統活動三中萬花筒畫板，是利用幾個扇形切面反射組成的對稱？',
-                options: ['8 個扇形切面', '3 個扇形', '4 個扇形', '12 個扇形'],
-                ans: 0,
-                hint: '中央劃分 8 重反射軸，一筆即可同時繪出 8 個方向！'
-            },
-            {
-                cat: '世界建築',
-                q: '古希臘帕德嫩神廟正立面給人莊嚴、雄偉的印象，大量運用了哪種美感原理？',
-                options: ['左右線對稱與黃金比例', '前後顛倒對稱', '非對稱前衛流線', '隨機柱列'],
-                ans: 0,
-                hint: '古典建築極度強調中央軸線對稱與柱列的和諧秩序。'
-            },
-            {
-                cat: '幾何推理',
-                q: '一個多邊形沿著一條直線折疊，如果兩半「邊長相等但無法完全重合」，它算線對稱圖形嗎？',
-                options: ['不算，必須翻折後完全重合', '算，只要邊長相等就成立', '算一半對稱', '視顏色決定'],
-                ans: 0,
-                hint: '線對稱嚴格定義：沿對稱軸翻折後，兩側圖形必須「完全重合」。'
-            },
-            {
-                cat: '空間幾何',
-                q: '若一個立體柱體的底面是正五邊形，則這個「五角柱」總共有幾條邊（稜）？',
-                options: ['15 條邊', '10 條邊', '20 條邊', '5 條邊'],
-                ans: 0,
-                hint: '角柱總邊數 = 底面邊數 × 3。5 × 3 = 15 條邊！'
-            },
-            {
-                cat: '空間幾何',
-                q: '若一個錐體的底面是四邊形，則這個「四角錐」總共有幾個面？',
-                options: ['5 個面', '4 個面', '8 個面', '6 個面'],
-                ans: 0,
-                hint: '1 個底面加上 4 個側面三角形，共有 5 個面！'
-            }
-        ];
-
-        // 洗牌演算法 (Fisher-Yates Shuffle)
-        function shuffleArray(arr) {
-            const copy = [...arr];
-            for (let i = copy.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [copy[i], copy[j]] = [copy[j], copy[i]];
-            }
-            return copy;
-        }
-
-        // 初始化防重複題庫隊列
-        function resetQuestionQueue() {
-            appState.game.unaskedQueue = shuffleArray(symmetryQuestionBank);
-        }
-
-        function startSymmetryGame() {
-            appState.game.timer = 120; // 2 minutes
-            appState.game.lives = 3;   // 3 strikes
-            appState.game.score = 0;
-            appState.game.answeredCount = 0;
-            appState.game.currentQIndex = 0;
-
-            // 建立乾淨的全新洗牌隨機隊列
-            resetQuestionQueue();
-
-            document.getElementById('gameScoreText').innerText = '0';
-            updateGameTimerDisplay();
-            updateGameLivesUI();
-
-            document.getElementById('gameStartCard').classList.add('hidden');
-            document.getElementById('gameOverCard').classList.add('hidden');
-            document.getElementById('gameActiveCard').classList.remove('hidden');
-
-            loadNextGameQuestion();
-
-            if (appState.game.intervalId) clearInterval(appState.game.intervalId);
-            appState.game.intervalId = setInterval(gameTimerTick, 1000);
-        }
-
-        function gameTimerTick() {
-            appState.game.timer--;
-            updateGameTimerDisplay();
-
-            const percent = (appState.game.timer / 120) * 100;
-            const bar = document.getElementById('gameProgressBar');
-            if (bar) bar.style.width = `${percent}%`;
-
-            if (appState.game.timer <= 0) {
-                endSymmetryGame('時間到！2分鐘極速挑戰完成！', true);
-            }
-        }
-
-        function updateGameTimerDisplay() {
-            const min = Math.floor(appState.game.timer / 60).toString().padStart(2, '0');
-            const sec = (appState.game.timer % 60).toString().padStart(2, '0');
-            const timerEl = document.getElementById('gameTimerText');
-            if (timerEl) {
-                timerEl.innerText = `${min}:${sec}`;
-                if (appState.game.timer <= 15) {
-                    timerEl.className = 'text-2xl font-black text-rose-600 font-mono animate-pulse';
-                } else {
-                    timerEl.className = 'text-2xl font-black text-amber-950 font-mono';
-                }
-            }
-        }
-
-        function updateGameLivesUI() {
-            const box = document.getElementById('gameLivesBox');
-            let html = '';
-            for (let i = 0; i < appState.game.lives; i++) {
-                html += '<i class="fa-solid fa-heart text-rose-500"></i>';
-            }
-            for (let i = appState.game.lives; i < 3; i++) {
-                html += '<i class="fa-regular fa-heart text-slate-300"></i>';
-            }
-            box.innerHTML = html;
-        }
-
-        // 載入下一題 (從防重複隊列提取)
-        function loadNextGameQuestion() {
-            if (appState.game.unaskedQueue.length === 0) {
-                // 若全庫作答完畢，重新洗牌補充
-                resetQuestionQueue();
-            }
-
-            const qData = appState.game.unaskedQueue.pop();
-            appState.game.currentQ = qData;
-            appState.game.currentQIndex++;
-
-            document.getElementById('gameQCategory').innerText = qData.cat;
-            document.getElementById('gameQIndex').innerText = `第 ${appState.game.currentQIndex} 題`;
-            document.getElementById('gameRemainBadge').innerText = `題庫剩餘 ${appState.game.unaskedQueue.length} 題`;
-            document.getElementById('gameQuestionText').innerText = qData.q;
-
-            const grid = document.getElementById('gameOptionsGrid');
-            grid.innerHTML = '';
-
-            const indices = [0, 1, 2, 3].sort(() => Math.random() - 0.5);
-            indices.forEach(idx => {
-                const btn = document.createElement('button');
-                btn.className = 'w-full p-4 rounded-2xl bg-white border-2 border-slate-300 hover:border-indigo-600 hover:bg-indigo-50 active:scale-95 text-left font-black text-slate-800 text-lg transition shadow-sm flex items-center justify-between';
-                btn.innerHTML = `<span>${qData.options[idx]}</span><i class="fa-regular fa-circle-check opacity-0"></i>`;
-                btn.onclick = () => checkGameAnswer(idx === qData.ans, btn, qData, idx);
-                grid.appendChild(btn);
-            });
-        }
-
-        function checkGameAnswer(isCorrect, btnEl, qData, chosenIdx) {
-            const allBtns = document.querySelectorAll('#gameOptionsGrid button');
-            allBtns.forEach(b => b.disabled = true);
-            appState.game.answeredCount++;
-
-            if (isCorrect) {
-                playSound('correct');
-                btnEl.className = 'w-full p-4 rounded-2xl bg-emerald-500 border-2 border-emerald-600 text-white font-black text-lg transition shadow-md flex items-center justify-between';
-                btnEl.querySelector('i').className = 'fa-solid fa-circle-check text-white opacity-100';
-                appState.game.score += 20;
-                document.getElementById('gameScoreText').innerText = appState.game.score;
-                showToast('答對了！+20 分');
-                setTimeout(() => {
-                    loadNextGameQuestion();
-                }, 400);
-            } else {
-                playSound('wrong');
-                btnEl.className = 'w-full p-4 rounded-2xl bg-rose-500 border-2 border-rose-600 text-white font-black text-lg transition shadow-md flex items-center justify-between';
-                btnEl.querySelector('i').className = 'fa-solid fa-circle-xmark text-white opacity-100';
-                
-                // 標註出正確答案給學生學習回饋
-                allBtns.forEach(b => {
-                    if (b.innerText.trim() === qData.options[qData.ans]) {
-                        b.className = 'w-full p-4 rounded-2xl bg-emerald-100 border-2 border-emerald-500 text-emerald-950 font-black text-lg transition flex items-center justify-between';
-                    }
-                });
-
-                appState.game.lives--;
-                updateGameLivesUI();
-                showToast(`答錯了！扣除 1 點生命值（提示：${qData.hint}）`);
-
-                if (appState.game.lives <= 0) {
-                    setTimeout(() => {
-                        endSymmetryGame('答題錯誤累計達三次，挑戰終止！', false);
-                    }, 650);
-                } else {
-                    setTimeout(() => {
-                        loadNextGameQuestion();
-                    }, 650);
-                }
-            }
-        }
-
-        function endSymmetryGame(message, isCompleted) {
-            clearInterval(appState.game.intervalId);
-
-            document.getElementById('gameActiveCard').classList.add('hidden');
-            document.getElementById('gameOverCard').classList.remove('hidden');
-
-            const iconEl = document.getElementById('gameOverIcon');
-            const titleEl = document.getElementById('gameOverTitle');
-            const msgEl = document.getElementById('gameOverMsg');
-
-            document.getElementById('finalScoreVal').innerText = appState.game.score;
-            document.getElementById('finalQuestionsAnswered').innerText = appState.game.answeredCount;
-
-            let badge = '幾何見習偵探';
-            if (appState.game.score >= 180) badge = '👑 幾何殿堂傳奇大師';
-            else if (appState.game.score >= 120) badge = '🌟 對稱解碼神探';
-            else if (appState.game.score >= 60) badge = '🎯 空間幾何高手';
-            document.getElementById('finalBadgeVal').innerText = badge;
-
-            if (appState.game.score > appState.game.bestScore) {
-                appState.game.bestScore = appState.game.score;
-                document.getElementById('statBestGameScore').innerText = appState.game.bestScore;
-            }
-
-            if (isCompleted) {
-                playSound('fanfare');
-                iconEl.className = 'w-20 h-20 bg-amber-100 text-amber-500 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md';
-                iconEl.innerHTML = '<i class="fa-solid fa-trophy"></i>';
-                titleEl.innerText = '挑戰成功！';
-                msgEl.innerText = message;
-            } else {
-                iconEl.className = 'w-20 h-20 bg-rose-100 text-rose-500 rounded-full mx-auto flex items-center justify-center text-4xl shadow-md';
-                iconEl.innerHTML = '<i class="fa-solid fa-heart-crack"></i>';
-                titleEl.innerText = '挑戰終止';
-                msgEl.innerText = message;
-            }
-        }
-
-        // 送出 ORID 與萬花筒作品至展示牆
-        function submitORIDAndShowcase() {
-            const groupName = document.getElementById('groupName').value.trim();
-            const studentName = document.getElementById('studentName').value.trim();
-            const o = document.getElementById('oridO').value.trim();
-            const r = document.getElementById('oridR').value.trim();
-            const i = document.getElementById('oridI').value.trim();
-            const d = document.getElementById('oridD').value.trim();
-
-            if (!groupName || !studentName || !o || !r || !i || !d) {
-                showToast('請先填寫組別、姓名及完整的 ORID 思考提問！');
-                return;
-            }
-
-            const now = new Date();
-            const timeStr = `${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}`;
-            const kaleidoDataUrl = kCanvas.toDataURL('image/png');
-
-            const submission = {
-                id: Date.now(),
-                group: groupName,
-                student: studentName,
-                time: timeStr,
-                image: kaleidoDataUrl,
-                o: o,
-                r: r,
-                i: i,
-                d: d,
-                likes: 0
-            };
-
-            appState.showcaseSubmissions.unshift(submission);
-
-            // 清空表單與畫布
-            document.getElementById('oridForm').reset();
-            clearKaleidoscope();
-
-            // 重新渲染展示牆
-            renderShowcaseWall();
-
-            showToast('作品已成功發布至成果展示牆！');
-
-            // 自動切換到成果展示牆分頁 (第 5 分頁)
-            switchActivity(5);
-        }
-
-        // 渲染成果展示牆
-        function renderShowcaseWall() {
-            const grid = document.getElementById('showcaseGrid');
-            const totalCountEl = document.getElementById('statTotalCount');
-            const artCountEl = document.getElementById('statKaleidoArtCount');
-            const totalLikesEl = document.getElementById('statTotalLikes');
-            const countBadge = document.getElementById('showcaseCountBadge');
-
-            const count = appState.showcaseSubmissions.length;
-            totalCountEl.innerText = count;
-            artCountEl.innerText = count;
-            countBadge.innerText = count;
-
-            let totalLikes = 0;
-            appState.showcaseSubmissions.forEach(s => totalLikes += s.likes);
-            totalLikesEl.innerText = totalLikes;
-
-            if (count === 0) {
-                grid.innerHTML = `
-                    <div id="noSubmissionsBox" class="col-span-full py-16 text-center text-slate-400 font-black text-xl bg-slate-50 rounded-3xl border-2 border-dashed border-slate-300">
-                        <i class="fa-solid fa-palette text-5xl mb-3 text-slate-300 block"></i>
-                        目前尚無作品發布，快到「活動三」完成萬花筒並送出吧！
-                    </div>
-                `;
-                return;
-            }
-
-            grid.innerHTML = appState.showcaseSubmissions.map((item, idx) => `
-                <div class="bg-white rounded-3xl p-5 border-2 border-indigo-100 shadow-md flex flex-col justify-between space-y-4 hover:shadow-xl transition duration-200">
-                    <div>
-                        <!-- Header info -->
-                        <div class="flex items-center justify-between border-b pb-2 mb-3">
-                            <div class="flex items-center gap-1.5">
-                                <span class="bg-indigo-600 text-white font-black text-xs px-2.5 py-1 rounded-lg">#${count - idx}</span>
-                                <span class="font-black text-slate-900 text-lg">${escapeHTML(item.group)}</span>
-                            </div>
-                            <div class="flex items-center gap-2">
-                                <span class="text-xs font-bold text-slate-400">${item.time}</span>
-                                <button onclick="deleteSingleSubmission(${item.id})" title="刪除此作品" class="text-slate-400 hover:text-rose-600 p-1 transition">
-                                    <i class="fa-solid fa-trash-can text-sm"></i>
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- Artwork thumbnail with click-to-zoom -->
-                        <div onclick="openPreview('${item.image}', '${escapeHTML(item.group)} - ${escapeHTML(item.student)}')" class="cursor-pointer group relative rounded-2xl overflow-hidden bg-slate-950 border border-slate-200 aspect-video flex items-center justify-center mb-3">
-                            <img src="${item.image}" alt="萬花筒創作" class="w-full h-full object-contain group-hover:scale-105 transition duration-300">
-                            <span class="absolute bottom-2 right-2 bg-slate-900/80 text-white text-xs font-bold px-2 py-1 rounded-lg opacity-0 group-hover:opacity-100 transition">
-                                <i class="fa-solid fa-magnifying-glass-plus"></i> 點擊放大
-                            </span>
-                        </div>
-
-                        <div class="text-xs font-black text-indigo-700 mb-2">創作者：${escapeHTML(item.student)}</div>
-
-                        <!-- ORID Content -->
-                        <div class="space-y-2 text-sm text-slate-700 bg-slate-50 p-3 rounded-2xl border border-slate-200">
-                            <p><strong>[O] 觀察：</strong> ${escapeHTML(item.o)}</p>
-                            <p><strong>[R] 感受：</strong> ${escapeHTML(item.r)}</p>
-                            <p><strong>[I] 理解：</strong> ${escapeHTML(item.i)}</p>
-                            <p><strong>[D] 選擇：</strong> ${escapeHTML(item.d)}</p>
-                        </div>
-                    </div>
-
-                    <!-- Like interactive button -->
-                    <div class="flex items-center justify-between pt-2 border-t border-slate-100">
-                        <button onclick="likeSubmission(${item.id})" class="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-rose-600 font-black bg-rose-50 hover:bg-rose-100 active:scale-90 transition">
-                            <i class="fa-solid fa-heart"></i>
-                            <span id="likeBtnText-${item.id}">讚 (${item.likes})</span>
-                        </button>
-                        <span class="text-xs text-slate-400 font-bold">全班公開觀摩中</span>
-                    </div>
-                </div>
-            `).join('');
-        }
-
-        function likeSubmission(id) {
-            const item = appState.showcaseSubmissions.find(s => s.id === id);
-            if (item) {
-                item.likes++;
-                renderShowcaseWall();
-                playSound('correct');
-                showToast(`已給予「${item.group}」一顆愛心！`);
-            }
-        }
-
-        function deleteSingleSubmission(id) {
-            appState.showcaseSubmissions = appState.showcaseSubmissions.filter(s => s.id !== id);
-            renderShowcaseWall();
-            showToast('已刪除指定作品');
-        }
-
-        function openPreview(imgUrl, title) {
-            document.getElementById('previewImg').src = imgUrl;
-            document.getElementById('previewTitle').innerText = `${title} 的萬花筒創作`;
-            toggleModal('previewModal');
-        }
-
-        function openClearConfirmModal() {
-            if (appState.showcaseSubmissions.length === 0) {
-                showToast('展示牆目前沒有任何作品可清空！');
-                return;
-            }
-            toggleModal('clearConfirmModal');
-        }
-
-        function confirmClearAllShowcase() {
-            appState.showcaseSubmissions = [];
-            renderShowcaseWall();
-            toggleModal('clearConfirmModal');
-            showToast('展示牆所有作品已清空完畢！');
-        }
-
-        // 匯出成果為圖片檔 (PNG)
-        function exportShowcasePNG() {
-            if (appState.showcaseSubmissions.length === 0) {
-                showToast('尚無任何學習成果，請先到活動三完成並發布作品！');
-                return;
-            }
-
-            const exportElement = document.getElementById('showcaseExportArea');
-            showToast('正在生成全景高畫質成果圖檔，請稍候...');
-
-            if (typeof html2canvas !== 'undefined') {
-                html2canvas(exportElement, {
-                    backgroundColor: '#ffffff',
-                    scale: 2,
-                    useCORS: true,
-                    logging: false
-                }).then(canvas => {
-                    const link = document.createElement('a');
-                    link.download = `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.png`;
-                    link.href = canvas.toDataURL('image/png');
-                    link.click();
-                    showToast('已成功匯出成果圖檔 (PNG)！');
-                }).catch(err => {
-                    console.error('html2canvas export error:', err);
-                    fallbackExportPNG();
-                });
-            } else {
-                fallbackExportPNG();
-            }
-        }
-
-        function fallbackExportPNG() {
-            const tempCanvas = document.createElement('canvas');
-            tempCanvas.width = 1200;
-            tempCanvas.height = 800;
-            const tCtx = tempCanvas.getContext('2d');
-
-            tCtx.fillStyle = '#f8fafc';
-            tCtx.fillRect(0, 0, tempCanvas.width, tempCanvas.height);
-
-            tCtx.fillStyle = '#1e1b4b';
-            tCtx.font = 'bold 36px sans-serif';
-            tCtx.fillText('規律的視覺美感 - 全班學習歷程報告', 60, 80);
-
-            tCtx.font = '20px sans-serif';
-            tCtx.fillStyle = '#64748b';
-            tCtx.fillText(`匯出時間：${new Date().toLocaleString()} | 發布總數：${appState.showcaseSubmissions.length} 份`, 60, 125);
-
-            let y = 180;
-            appState.showcaseSubmissions.slice(0, 4).forEach((item, idx) => {
-                tCtx.fillStyle = '#ffffff';
-                tCtx.fillRect(60, y, 1080, 120);
-                tCtx.strokeStyle = '#cbd5e1';
-                tCtx.strokeRect(60, y, 1080, 120);
-
-                tCtx.fillStyle = '#312e81';
-                tCtx.font = 'bold 22px sans-serif';
-                tCtx.fillText(`${idx + 1}. 組別：${item.group} (${item.student}) - 愛心：${item.likes}`, 80, y + 40);
-
-                tCtx.fillStyle = '#475569';
-                tCtx.font = '16px sans-serif';
-                tCtx.fillText(`[O] ${item.o.slice(0, 45)}...`, 80, y + 70);
-                tCtx.fillText(`[D] ${item.d.slice(0, 45)}...`, 80, y + 95);
-
-                y += 140;
-            });
-
-            const link = document.createElement('a');
-            link.download = `規律的視覺美感_全班學習成果_${new Date().toISOString().slice(0, 10)}.png`;
-            link.href = tempCanvas.toDataURL('image/png');
-            link.click();
-            showToast('已由備用引擎匯出成果圖檔 (PNG)！');
-        }
-
-        function escapeHTML(str) {
-            if (!str) return '';
-            return str.replace(/[&<>'"]/g, 
-                tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
-            );
-        }
-
-        function showToast(msg) {
-            const toast = document.getElementById('toast');
-            const toastMsg = document.getElementById('toastMsg');
-            if (toast && toastMsg) {
-                toastMsg.innerText = msg;
-                toast.style.opacity = '1';
-                setTimeout(() => {
-                    toast.style.opacity = '0';
-                }, 2400);
-            }
-        }
-
-        function handleCanvasResize() {
-            resizeCanvas2();
-            resizeKaleidoscope();
-        }
-    </script>
+      });
+
+      const now = new Date();
+      const dStr = `${now.getFullYear()}/${String(now.getMonth() + 1).padStart(2, '0')}/${String(now.getDate()).padStart(2, '0')}`;
+      const dateEl = document.getElementById('current-date-str');
+      if (dateEl) dateEl.innerText = dStr;
+
+      renderPatternSVG();
+      syncResultsToORID();
+    }
+
+    window.onload = function() {
+      initApp();
+    };
+  </script>
 </body>
 </html>
